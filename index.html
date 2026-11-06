@@ -10,16 +10,57 @@
 :root{--bg:#0f1b26;--panel:#14232f;--line:#26394a;--ink:#ece6d8;--mute:#8da0b0;--gain:#6fc3a0;--loss:#d9806b;--brass:#c9a96a}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif;padding:0 clamp(16px,5vw,64px) 48px}
+body{background:radial-gradient(900px 420px at 90% -5%,rgba(201,169,106,.10),transparent 60%),var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif;padding:0 clamp(16px,5vw,64px) 48px}
 .num{font-variant-numeric:tabular-nums}
 header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;padding:28px 0;border-bottom:1px solid var(--line)}
-.brand{font-family:Newsreader,Georgia,serif;font-size:22px}
-.brand span{color:var(--mute);font:400 14px "IBM Plex Sans",sans-serif;margin-left:12px}
-.meta{color:var(--mute);font-size:13px}
-.hero{padding:56px 0 32px;display:flex;gap:40px;align-items:flex-end;flex-wrap:wrap}
-.hero h1{font:400 clamp(52px,10vw,110px)/0.95 Newsreader,Georgia,serif;margin:0;letter-spacing:-.02em}
-.hero h1 small{font-size:.35em;margin-left:.3em}
-.hero .cap{color:var(--mute);max-width:40ch;padding-bottom:10px}
+.brand{font:500 13px "IBM Plex Sans",sans-serif;letter-spacing:.3em;text-transform:uppercase}
+.brand::before{content:"";display:inline-block;width:28px;height:1px;background:var(--brass);vertical-align:middle;margin-right:14px}
+.meta{color:var(--mute);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+.hero{padding:64px 0 44px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:56px;align-items:end}
+.eyebrow{color:var(--brass);font-size:12px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:18px}
+.name{font:400 clamp(40px,6.2vw,84px)/1 Newsreader,Georgia,serif;margin:0;letter-spacing:-.02em}
+.tagline{color:var(--mute);margin:14px 0 0;font-size:15px;letter-spacing:.04em}
+.lede{font:400 clamp(20px,2.3vw,27px)/1.3 Newsreader,Georgia,serif;max-width:32ch;margin:24px 0 0;color:var(--ink)}
+.duo{display:grid;grid-template-columns:1fr 1fr;margin-top:26px;border-top:1px solid var(--line);max-width:560px}
+.duo div{padding:14px 22px 0 0}
+.duo div+div{padding:14px 0 0 22px;border-left:1px solid var(--line)}
+.duo b{display:block;font:500 11px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:6px}
+.duo span{color:var(--mute);font-size:14px;line-height:1.55}
+.pills{list-style:none;padding:0;margin:26px 0 0;display:flex;flex-wrap:wrap;gap:8px}
+.pills li{border:1px solid var(--line);padding:6px 12px;font-size:12.5px;color:var(--mute)}
+.pills b{color:var(--ink);font-weight:500;margin-right:8px;letter-spacing:.12em;text-transform:uppercase;font-size:11px}
+.result{border-left:1px solid var(--line);padding-left:40px}
+.rl{color:var(--mute);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+#total{font:400 clamp(52px,8vw,104px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:10px 0 12px}
+#total small{font-size:.32em;margin-left:.3em}
+.cap{color:var(--mute);font-size:13px;max-width:38ch}
+.instbox{border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 0 40px}
+.instbox summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:20px;padding:16px 0}
+.instbox summary::-webkit-details-marker{display:none}
+.instbox summary:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.sl{font:500 12px "IBM Plex Sans",sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);white-space:nowrap}
+.sm{color:var(--mute);font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hint{color:var(--mute);font-size:12px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.instbox:not([open]) .hint::after{content:"Показать"}
+.instbox[open] .hint::after{content:"Скрыть"}
+.chev{width:8px;height:8px;border-right:1.5px solid var(--mute);border-bottom:1.5px solid var(--mute);transform:rotate(45deg);margin:-4px 4px 0 0;transition:transform .2s}
+.instbox[open] .chev{transform:rotate(-135deg);margin-top:4px}
+.groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px;margin:6px 0 32px}
+.grp h3{font:500 12px "IBM Plex Sans",sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);margin:0 0 4px}
+.gnote{color:var(--mute);font-size:13px;margin:0 0 14px}
+.icards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.inst{background:var(--panel);padding:16px 16px 12px;color:inherit;text-decoration:none;display:block}
+a.inst:hover{background:#18303f}
+.inst.live{box-shadow:inset 2px 0 0 var(--brass)}
+.ih{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.sym{font:400 30px Newsreader,Georgia,serif}
+.chip{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);border:1px solid var(--line);padding:2px 8px;white-space:nowrap}
+.live .chip{color:var(--brass);border-color:var(--brass)}
+.iname{color:var(--mute);font-size:13px;margin:2px 0 12px}
+.inst dl{margin:0}
+.inst dl div{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding:5px 0;font-size:12.5px}
+.inst dt{color:var(--mute)}
+.inst dd{margin:0;text-align:right}
 .pos{color:var(--gain)}.neg{color:var(--loss)}
 .chartwrap{background:var(--panel);border:1px solid var(--line);padding:20px 20px 12px;position:relative}
 .tabs{display:flex;gap:4px;margin-bottom:8px}
@@ -44,7 +85,15 @@ th{white-space:nowrap;position:sticky;top:0;background:var(--panel);color:var(--
 th:first-child{left:0;z-index:2}
 td:first-child{position:sticky;left:0;background:var(--bg)}
 html{-webkit-text-size-adjust:100%}
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:32px;padding:40px 0 32px}
+  .result{border-left:0;border-top:1px solid var(--line);padding:24px 0 0}
+  .groups{grid-template-columns:1fr}
+}
 @media (max-width:640px){
+  .duo{grid-template-columns:1fr}
+  .duo div+div{padding:14px 0 0;border-left:0;border-top:1px solid var(--line);margin-top:14px}
+  .duo div{padding-right:0}
   body{padding:0 14px 36px}
   header{padding:18px 0}
   .brand span{display:block;margin:2px 0 0}
@@ -64,13 +113,30 @@ footer{margin-top:40px;color:var(--mute);font-size:12px;max-width:80ch}
 </head>
 <body>
 <header>
-  <div class="brand" id="title"></div>
+  <div class="brand">Globextrader</div>
+  <div class="meta">Intraday Scalping Strategy</div>
 </header>
 
 <section class="hero">
-  <h1 class="num" id="total">—</h1>
-  <div class="cap" id="cap"></div>
+  <div class="intro">
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1 class="name" id="name"></h1>
+    <p class="tagline" id="tagline"></p>
+    <p class="lede" id="lede"></p>
+    <div class="duo" id="duo"></div>
+    <ul class="pills" id="pills"></ul>
+  </div>
+  <div class="result">
+    <div class="rl">Результат · ES</div>
+    <div class="num" id="total">—</div>
+    <div class="cap" id="cap"></div>
+  </div>
 </section>
+
+<details class="instbox" id="instbox">
+  <summary><span class="sl">Инструменты</span><span class="sm" id="sumsyms"></span><span class="hint"></span><span class="chev"></span></summary>
+  <div class="groups" id="insts"></div>
+</details>
 
 <section class="chartwrap" aria-label="График результатов">
   <div class="tabs" id="tabs"></div>
@@ -82,10 +148,10 @@ footer{margin-top:40px;color:var(--mute);font-size:12px;max-width:80ch}
 <div class="status" id="status"></div>
 <pre class="status" id="debug" style="white-space:pre-wrap;display:none"></pre>
 
-<h2>Статистика</h2>
+<h2 class="dh">Статистика</h2>
 <dl class="grid" id="stats"></dl>
 
-<h2>Результаты по периодам</h2>
+<h2 class="dh">Результаты по периодам</h2>
 <div class="tabs" id="tblTabs"></div>
 <div class="tablewrap"><table class="num"><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
 
@@ -106,6 +172,32 @@ const CONFIG = {
   capital: 0,             // размер счёта в $. Если указать, рядом с $ покажется доходность в %
   periodsPerYear: 252,
   updateNY: { h: 16, m: 30 },   // обновление раз в сутки в это время по Нью-Йорку
+  // Шапка сайта. Тексты, инструменты, стоп/тейк по каждому инструменту — всё меняется здесь.
+  strategy: {
+    eyebrow: "Внутридневная торговля",
+    name: "Scalping Globextrader",
+    tagline: "Полусистемная · полудискреционная стратегия",
+    lede: "Внутридневной скальпинг на фьючерсах на индексы США и опционах 0DTE.",
+    approach: [
+      ["Системная часть", "Торговый план, лимиты риска и параметры сделки заданы заранее."],
+      ["Дискреционная часть", "Решение о входе трейдер принимает по текущей рыночной ситуации."]
+    ],
+    pills: [["Сессия", "09:30–11:00 по Нью-Йорку"], ["Размер", "1 контракт, без реинвестирования"], ["Комиссия", "$4 за сделку"]],
+    // href: ссылка на страницу со статистикой инструмента (когда появится); live: true — результаты уже на этой странице
+    groups: [
+      { title: "Фьючерсы", tickLabel: "Тик", note: "CME · торговля 09:30–11:00 ET", items: [
+        { sym: "ES", name: "E-mini S&P 500", tick: "0,25 п. = $12,50", stop: "20 тиков · $250", take: "10 тиков · $125", live: true, href: "" },
+        { sym: "NQ", name: "E-mini Nasdaq-100", tick: "0,25 п. = $5,00", stop: "", take: "", href: "" },
+        { sym: "YM", name: "E-mini Dow Jones", tick: "1 п. = $5,00", stop: "", take: "", href: "" }
+      ] },
+      { title: "Опционы 0DTE", tickLabel: "Контракт", note: "Экспирация в день торговли · 09:30–11:00 ET", items: [
+        { sym: "SPX", name: "Индекс S&P 500", tick: "×$100", stop: "", take: "", href: "" },
+        { sym: "SPY", name: "ETF S&P 500", tick: "×100 акций", stop: "", take: "", href: "" },
+        { sym: "QQQ", name: "ETF Nasdaq-100", tick: "×100 акций", stop: "", take: "", href: "" },
+        { sym: "DIA", name: "ETF Dow Jones", tick: "×100 акций", stop: "", take: "", href: "" }
+      ] }
+    ]
+  },
   disclaimer: "Результаты получены на исторических данных (бэктест) и не являются результатами реальной торговли. Прошлые результаты не гарантируют будущей доходности. Торговля фьючерсами связана с риском потери капитала. Данные приведены в информационных целях и не являются инвестиционной рекомендацией."
 };
 /* ===================== */
@@ -376,7 +468,7 @@ function stats(P) {
   ];
   $("stats").innerHTML = items.map(([a, b, c2]) => `<div><dt>${a}</dt><dd class="num ${c2}">${b}</dd></div>`).join("");
   $("total").innerHTML = `<span class="${cls(total)}">${money(total)}</span>` + (cap ? `<small class="${cls(total)}">${pctS(total)}</small>` : "");
-  $("cap").innerHTML = `Результат бэктеста стратегии на фьючерсе E-mini S&P 500 (ES) на исторических данных с ${fmtDate(days[0].t)} по ${fmtDate(days[days.length - 1].t)}.<br>Тестирование проводилось одним контрактом, без реинвестирования. P&L в долларах: 1 тик = $12,50, с учётом комиссии $4 за сделку.`;
+  $("cap").textContent = `Накопленный результат на ES с ${fmtDate(days[0].t)} по ${fmtDate(days[days.length - 1].t)}. 1 тик = $12,50, с учётом комиссии.`;
 }
 let tblView = "day";
 function tables() {
@@ -448,19 +540,33 @@ async function load() {
   if (days.length < 2) {
     if (CONFIG.sheetCsvUrl) {   // реальный сайт: демо-цифры не показываем никогда
       $("status").textContent = note || ("Не удалось прочитать данные из таблицы" + (dbg && dbg.problem ? ": " + dbg.problem : "") + ". Откройте страницу с ?debug для диагностики.");
-      document.querySelectorAll("section, h2, #stats, #tblTabs, .tablewrap").forEach(e => e.style.display = "none");
+      document.querySelectorAll(".result, .chartwrap, .dh, #stats, #tblTabs, .tablewrap").forEach(e => e.style.display = "none");
       showDebug(); setTimeout(load, 10 * 60000); return;
     }
     days = demoData(); note = note || "Демо-данные.";
   }
-  document.querySelectorAll("section, h2, #stats, #tblTabs, .tablewrap").forEach(e => e.style.display = "");
+  document.querySelectorAll(".result, .chartwrap, .dh, #stats, #tblTabs, .tablewrap").forEach(e => e.style.display = "");
   $("status").textContent = note || "(данные обновляются раз в сутки)";
   showDebug();
   render(); tables();
   setTimeout(load, Math.min(next - Date.now() + 5000, 2 ** 31 - 1));
 }
 
-$("title").innerHTML = `${CONFIG.title}<span>${CONFIG.subtitle}</span>`;
+function renderIntro() {
+  const S = CONFIG.strategy;
+  document.title = S.name + " — результаты";
+  $("eyebrow").textContent = S.eyebrow; $("name").textContent = S.name; $("tagline").textContent = S.tagline; $("lede").textContent = S.lede;
+  $("duo").innerHTML = S.approach.map(a => `<div><b>${a[0]}</b><span>${a[1]}</span></div>`).join("");
+  $("pills").innerHTML = S.pills.map(p => `<li><b>${p[0]}</b>${p[1]}</li>`).join("");
+  const row = (k, v) => `<div><dt>${k}</dt><dd>${v || "—"}</dd></div>`;
+  const card = (i, lbl) => {
+    const tag = i.href ? "a" : "div", chip = i.live ? "Результаты ниже" : i.href ? "Статистика →" : "Скоро";
+    return `<${tag} class="inst${i.live ? " live" : ""}"${i.href ? ` href="${i.href}"` : ""}><div class="ih"><span class="sym">${i.sym}</span><span class="chip">${chip}</span></div><div class="iname">${i.name}</div><dl>${row(lbl, i.tick)}${row("Стоп", i.stop)}${row("Тейк", i.take)}</dl></${tag}>`;
+  };
+  $("sumsyms").textContent = S.groups.map(g => g.items.map(i => i.sym).join(" · ")).join("   |   ");
+  $("insts").innerHTML = S.groups.map(g => `<div class="grp"><h3>${g.title}</h3><p class="gnote">${g.note}</p><div class="icards">${g.items.map(i => card(i, g.tickLabel || "Тик")).join("")}</div></div>`).join("");
+}
+renderIntro();
 $("disc").textContent = CONFIG.disclaimer;
 load();
 </script>
