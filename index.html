@@ -34,18 +34,15 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 #total{font:400 clamp(52px,8vw,104px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:10px 0 12px}
 #total small{font-size:.32em;margin-left:.3em}
 .cap{color:var(--mute);font-size:13px;max-width:38ch}
-.instbox{border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 0 40px}
-.instbox summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:20px;padding:16px 0}
+.instbox{position:relative;margin-top:22px}
+.instbox summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:10px;padding:4px 0;color:var(--mute)}
 .instbox summary::-webkit-details-marker{display:none}
-.instbox summary:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
-.sl{font:500 12px "IBM Plex Sans",sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);white-space:nowrap}
-.sm{color:var(--mute);font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hint{color:var(--mute);font-size:12px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
-.instbox:not([open]) .hint::after{content:"Показать"}
-.instbox[open] .hint::after{content:"Скрыть"}
-.chev{width:8px;height:8px;border-right:1.5px solid var(--mute);border-bottom:1.5px solid var(--mute);transform:rotate(45deg);margin:-4px 4px 0 0;transition:transform .2s}
-.instbox[open] .chev{transform:rotate(-135deg);margin-top:4px}
-.groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px;margin:6px 0 32px}
+.instbox summary:hover,.instbox[open] summary{color:var(--brass)}
+.instbox summary:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+.sl{font:500 11px "IBM Plex Sans",sans-serif;letter-spacing:.22em;text-transform:uppercase}
+.chev{width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin-top:-3px;transition:transform .2s}
+.instbox[open] .chev{transform:rotate(-135deg);margin-top:3px}
+.groups{position:absolute;right:0;top:calc(100% + 10px);z-index:20;width:min(700px,calc(100vw - 28px));display:grid;grid-template-columns:1fr;gap:22px;margin:0;padding:22px;background:var(--panel);border:1px solid var(--line);box-shadow:0 18px 50px rgba(0,0,0,.5)}
 .grp h3{font:500 12px "IBM Plex Sans",sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);margin:0 0 4px}
 .gnote{color:var(--mute);font-size:13px;margin:0 0 14px}
 .icards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
@@ -130,13 +127,14 @@ footer{margin-top:40px;color:var(--mute);font-size:12px;max-width:80ch}
     <div class="rl">Результат · ES</div>
     <div class="num" id="total">—</div>
     <div class="cap" id="cap"></div>
+    <details class="instbox" id="instbox">
+      <summary><span class="sl">Инструменты</span><span class="chev"></span></summary>
+      <div class="groups" id="insts"></div>
+    </details>
   </div>
 </section>
 
-<details class="instbox" id="instbox">
-  <summary><span class="sl">Инструменты</span><span class="sm" id="sumsyms"></span><span class="hint"></span><span class="chev"></span></summary>
-  <div class="groups" id="insts"></div>
-</details>
+
 
 <section class="chartwrap" aria-label="График результатов">
   <div class="tabs" id="tabs"></div>
@@ -563,10 +561,11 @@ function renderIntro() {
     const tag = i.href ? "a" : "div", chip = i.live ? "Результаты ниже" : i.href ? "Статистика →" : "Скоро";
     return `<${tag} class="inst${i.live ? " live" : ""}"${i.href ? ` href="${i.href}"` : ""}><div class="ih"><span class="sym">${i.sym}</span><span class="chip">${chip}</span></div><div class="iname">${i.name}</div><dl>${row(lbl, i.tick)}${row("Стоп", i.stop)}${row("Тейк", i.take)}</dl></${tag}>`;
   };
-  $("sumsyms").textContent = S.groups.map(g => g.items.map(i => i.sym).join(" · ")).join("   |   ");
   $("insts").innerHTML = S.groups.map(g => `<div class="grp"><h3>${g.title}</h3><p class="gnote">${g.note}</p><div class="icards">${g.items.map(i => card(i, g.tickLabel || "Тик")).join("")}</div></div>`).join("");
 }
 renderIntro();
+document.addEventListener("click", e => { const b = $("instbox"); if (b.open && !b.contains(e.target)) b.open = false; });
+document.addEventListener("keydown", e => { if (e.key === "Escape") $("instbox").open = false; });
 $("disc").textContent = CONFIG.disclaimer;
 load();
 </script>
