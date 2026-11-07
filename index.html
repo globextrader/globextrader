@@ -39,7 +39,7 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .rl{display:flex;align-items:center;gap:14px;color:var(--mute);font-size:12px;letter-spacing:.22em;text-transform:uppercase}
 .rl::before{content:"";width:28px;height:1px;background:var(--brass)}
 .tag{font-style:normal;color:var(--ink);border:1px solid var(--line);padding:2px 9px;letter-spacing:.14em}
-.cur{font-size:.46em;vertical-align:.78em;margin-right:.1em;opacity:.8}
+.csign{font-size:.46em;vertical-align:.78em;margin-right:.1em;opacity:.8}
 .rmeta{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;border-top:1px solid var(--line);max-width:540px}
 .rmeta div{padding:12px 22px 0 0}
 .rmeta div+div{padding-left:20px;border-left:1px solid var(--line)}
@@ -163,6 +163,7 @@ footer{margin-top:40px;color:var(--mute);font-size:12px;max-width:80ch}
   <svg id="chart" viewBox="0 0 1000 380" role="img" aria-label="График P&L"></svg>
   <svg id="dd" viewBox="0 0 1000 90" role="img" aria-label="Просадка"></svg>
   <div class="tip num" id="tip"></div>
+  <div class="tip num" id="tip2"></div>
 </section>
 <div class="status" id="status"></div>
 <pre class="status" id="debug" style="white-space:pre-wrap;display:none"></pre>
@@ -385,7 +386,12 @@ function xLabels(P, xc, maxLabels) {
   P.forEach((p, i) => { if (i % k === 0) g += `<text x="${xc(i)}" y="${H - 12}" text-anchor="middle" fill="#8da0b0" font-size="12">${p.label}</text>`; });
   return g;
 }
-const overlay = () => `<line id="cx" y1="${pad.t}" y2="${H - pad.b}" stroke="#8da0b0" opacity="0"/><rect id="hit" x="${pad.l}" y="0" width="${W - pad.l - pad.r}" height="${H}" fill="transparent" style="touch-action:pan-y"/>`;
+const fmtN = v => (v < 0 ? "−" : "") + Math.abs(Math.round(v)).toLocaleString("en-US");
+const overlayFor = (p, y1, y2, h) => `<line id="${p}_x" y1="${y1}" y2="${y2}" stroke="#8da0b0" opacity="0"/>` +
+  `<line id="${p}_y" x1="${pad.l}" x2="${W - pad.r}" stroke="#c9a96a" stroke-dasharray="3 3" opacity="0"/>` +
+  `<circle id="${p}_d" r="4" fill="#c9a96a" stroke="#0f1b26" stroke-width="2" opacity="0"/>` +
+  `<text id="${p}_t" x="${pad.l - 8}" text-anchor="end" fill="#c9a96a" font-size="12" paint-order="stroke" stroke="#14232f" stroke-width="5" opacity="0"></text>` +
+  `<rect id="${p}_hit" x="${pad.l}" y="0" width="${W - pad.l - pad.r}" height="${h}" fill="transparent" style="touch-action:pan-y"/>`;
 
 function lineChart(P, vals, o) {
   const { g, y } = frame(...(o.range || [Math.min(...vals), Math.max(...vals)]), o.yFmt);
@@ -395,8 +401,9 @@ function lineChart(P, vals, o) {
   $("chart").innerHTML = g + xLabels(P, x, 8) +
     `<path d="M${x(0)},${y(0)} L${pts.join(" L")} L${x(P.length - 1)},${y(0)}Z" fill="${col}" opacity=".12"/>` +
     `<polyline class="line" id="ln" points="${pts.join(" ")}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>` +
-    (o.unit ? `<text x="${W - pad.r}" y="12" text-anchor="end" fill="#c9a96a" font-size="13">${o.unit}</text>` : "") + overlay();
+    (o.unit ? `<text x="${W - pad.r}" y="12" text-anchor="end" fill="#c9a96a" font-size="13">${o.unit}</text>` : "") + overlayFor("m", pad.t, H - pad.b, H);
   const ln = $("ln"); ln.style.setProperty("--len", ln.getTotalLength());
+  let ddSpec = null;
   if (o.dd) {
     let peak = 0; const dd = vals.map(v => (peak = Math.max(peak, v), v - peak));
     const dmin = Math.min(-1, ...dd), DH = 90, dy = v => 6 + (v / dmin) * (DH - 14);
@@ -405,10 +412,11 @@ function lineChart(P, vals, o) {
       `<text x="${pad.l - 8}" y="${DH - 6}" text-anchor="end" fill="#8da0b0" font-size="12">${axisNum(Math.round(dmin))}</text>` +
       `<path d="M${x(0)},${dy(0)} L${dd.map((v, i) => `${x(i).toFixed(1)},${dy(v).toFixed(1)}`).join(" L")} L${x(P.length - 1)},${dy(0)}Z" fill="#d9806b" opacity=".35"/>` +
       `<text x="${W - pad.r}" y="14" text-anchor="end" fill="#8da0b0" font-size="13">Drawdown, $</text>` +
-      `<line id="cx2" y1="0" y2="${DH}" stroke="#8da0b0" opacity="0"/><rect id="hit2" x="${pad.l}" y="0" width="${W - pad.l - pad.r}" height="${DH}" fill="transparent" style="touch-action:pan-y"/>`;
-    hover(P.length, x, i => `${P[i].label}: <b class="${dd[i] < 0 ? "neg" : ""}">${dd[i] < 0 ? money(dd[i]) : "$0"}</b><small>Drawdown from peak</small>`, "dd", "hit2");
+      overlayFor("d", 0, DH, DH);
+    ddSpec = { p: "d", svg: "dd", tip: "tip2", mark: i => ({ y: dy(dd[i]), label: fmtN(dd[i]) }),
+      text: i => `${P[i].label}: <b class="${dd[i] < 0 ? "neg" : ""}">${dd[i] < 0 ? money(dd[i]) : "$0"}</b><small>Drawdown from peak</small>` };
   } else $("dd").style.display = "none";
-  hover(P.length, x, o.tip);
+  hover(P.length, x, [{ p: "m", svg: "chart", tip: "tip", text: o.tip, mark: i => ({ y: y(vals[i]), label: fmtN(vals[i]) }) }].concat(ddSpec ? [ddSpec] : []));
 }
 
 // o.stack(p) -> [[value, color], ...]: положительные значения растут вверх, отрицательные вниз от нуля
@@ -438,28 +446,41 @@ function barChart(P, o) {
     if (!tops[i] && !bots[i]) bars += `<rect x="${x(i) - bw / 2}" y="${y(0) - 1}" width="${bw}" height="2" fill="#8da0b0"/>`;   // день без сделок: нулевой столбец
   });
   const legend = o.legend ? `<text x="${W - pad.r}" y="12" text-anchor="end" fill="#c9a96a" font-size="13">${o.legend}</text>` : "";
-  $("chart").innerHTML = g + bars + legend + xLabels(P, x, P.length <= 12 ? 12 : 14) + overlay();
+  $("chart").innerHTML = g + bars + legend + xLabels(P, x, P.length <= 12 ? 12 : 14) + overlayFor("m", pad.t, H - pad.b, H);
   $("dd").style.display = "none";
-  hover(P.length, x, o.tip);
+  hover(P.length, x, [{ p: "m", svg: "chart", tip: "tip", text: o.tip, mark: o.hv ? i => ({ y: y(o.hv(P[i])), label: fmtN(o.hv(P[i])) }) : null }]);
 }
 
-function hover(n, x, text, svgId = "chart", hitId = "hit") {
-  const hit = $(hitId), tip = $("tip");
-  const lines = f => ["cx", "cx2"].forEach(id => { const c = $(id); if (c) f(c); });
-  const move = e => {
-    const box = $(svgId).getBoundingClientRect(), px = ((e.clientX - box.left) / box.width) * W;
-    let i = 0, best = 1e9;
-    for (let k = 0; k < n; k++) { const dist = Math.abs(x(k) - px); if (dist < best) { best = dist; i = k; } }
-    lines(c => { c.setAttribute("x1", x(i)); c.setAttribute("x2", x(i)); c.setAttribute("opacity", 1); });
-    tip.style.display = "block"; tip.innerHTML = text(i);
-    const wr = $("chart").parentElement.getBoundingClientRect();
-    tip.style.left = Math.max(8, Math.min(e.clientX - wr.left + 14, wr.width - tip.offsetWidth - 8)) + "px";
-    const top0 = box.top - wr.top + 4;   // подсказка не заходит на кнопки над графиком
-    tip.style.top = Math.max(top0, e.pointerType === "touch" ? top0 : e.clientY - wr.top - 40) + "px";
-  };
-  hit.addEventListener("pointermove", move);
-  hit.addEventListener("pointerdown", move);
-  hit.addEventListener("pointerleave", e => { if (e.pointerType === "touch") return; tip.style.display = "none"; lines(c => c.setAttribute("opacity", 0)); });
+function hideHover() {
+  for (const p of ["m", "d"]) ["_x", "_y", "_d", "_t"].forEach(k => { const el = $(p + k); if (el) el.setAttribute("opacity", 0); });
+  $("tip").style.display = "none"; $("tip2").style.display = "none";
+}
+function hover(n, x, specs) {
+  const show = i => specs.forEach(sp => {
+    const m = sp.mark ? sp.mark(i) : null, set = (k, f) => { const el = $(sp.p + k); if (el) f(el); };
+    set("_x", el => { el.setAttribute("x1", x(i)); el.setAttribute("x2", x(i)); el.setAttribute("opacity", 1); });
+    set("_y", el => { el.setAttribute("opacity", m ? 1 : 0); if (m) { el.setAttribute("y1", m.y); el.setAttribute("y2", m.y); } });
+    set("_d", el => { el.setAttribute("opacity", m ? 1 : 0); if (m) { el.setAttribute("cx", x(i)); el.setAttribute("cy", m.y); } });
+    set("_t", el => { el.setAttribute("opacity", m ? 1 : 0); if (m) { el.setAttribute("y", m.y + 4); el.textContent = m.label; } });
+    const tip = $(sp.tip), wr = $("chart").parentElement.getBoundingClientRect(), sb = $(sp.svg).getBoundingClientRect();
+    tip.innerHTML = sp.text(i); tip.style.display = "block";
+    const cxp = sb.left + (x(i) / W) * sb.width - wr.left;
+    let left = cxp + 14; if (left + tip.offsetWidth > wr.width - 8) left = cxp - tip.offsetWidth - 14;   // справа места нет — слева от линии
+    tip.style.left = Math.max(8, left) + "px";
+    tip.style.top = (sb.top - wr.top + 6) + "px";   // у верхнего края своего графика, на кнопки не заходит
+  });
+  specs.forEach(sp => {
+    const move = e => {
+      const box = $(sp.svg).getBoundingClientRect(), px = ((e.clientX - box.left) / box.width) * W;
+      let i = 0, best = 1e9;
+      for (let k = 0; k < n; k++) { const dist = Math.abs(x(k) - px); if (dist < best) { best = dist; i = k; } }
+      show(i);
+    };
+    const hit = $(sp.p + "_hit");
+    hit.addEventListener("pointermove", move);
+    hit.addEventListener("pointerdown", move);
+    hit.addEventListener("pointerleave", e => { if (e.pointerType !== "touch") hideHover(); });
+  });
 }
 
 /* ---------- статистика и таблица ---------- */
@@ -497,7 +518,7 @@ function stats(P) {
     ...extra
   ];
   $("stats").innerHTML = items.map(([a, b, c2]) => `<div><dt>${a}</dt><dd class="num ${c2}">${b}</dd></div>`).join("");
-  $("total").innerHTML = `<span class="${cls(total)}"><span class="cur">${total >= 0 ? "+" : "−"}$</span>${Math.abs(Math.round(total)).toLocaleString("en-US")}</span>` + (cap ? `<small class="${cls(total)}">${pctS(total)}</small>` : "");
+  $("total").innerHTML = `<span class="${cls(total)}"><span class="csign">${total >= 0 ? "+" : "−"}$</span>${Math.abs(Math.round(total)).toLocaleString("en-US")}</span>` + (cap ? `<small class="${cls(total)}">${pctS(total)}</small>` : "");
   $("cap").innerHTML = `<div><span>Период</span><b>${fmtDate(days[0].t)} – ${fmtDate(days[days.length - 1].t)}</b></div><div><span>Стоимость тика</span><b>$12,50</b></div><div><span>Комиссии</span><b>учтены</b></div>`;
 }
 let tblView = "day";
@@ -525,11 +546,11 @@ function render() {
   let c = 0; const cum = P.map(p => (c += p.pnl));
   const det = p => `<small>${p.trades ? `${p.trades} сделок · ${p.win} win · ${p.loss} loss` : ""}</small>`;
   if (metric === "cum") lineChart(P, cum, { dd: view === "day", yFmt: axisNum, unit: "$", tip: i => `${P[i].label}: <b class="${cls(cum[i])}">${money(cum[i])}</b><small>за период ${money(P[i].pnl)}</small>` });
-  if (metric === "pnl") barChart(P, { stack: p => [[p.pnl, p.pnl >= 0 ? GAIN : LOSS]], label: p => Math.round(p.pnl), yFmt: axisNum, legend: "$", tip: i => `${P[i].label}: <b class="${cls(P[i].pnl)}">${money(P[i].pnl)}</b>${det(P[i])}` });
-  if (metric === "ticks") barChart(P, { legend: "ticks", stack: p => [[p.ticks, p.ticks >= 0 ? GAIN : LOSS]], label: p => Math.round(p.ticks), tip: i => `${P[i].label}: <b class="${cls(P[i].ticks)}">${tickS(P[i].ticks)}</b> тиков${det(P[i])}` });
-  if (metric === "trades") barChart(P, { legend: "trades", stack: p => [[p.trades, BRASS]], label: p => p.trades, tip: i => `${P[i].label}: <b>${P[i].trades}</b> сделок<small>${P[i].win} win · ${P[i].loss} loss</small>` });
+  if (metric === "pnl") barChart(P, { stack: p => [[p.pnl, p.pnl >= 0 ? GAIN : LOSS]], label: p => Math.round(p.pnl), hv: p => p.pnl, yFmt: axisNum, legend: "$", tip: i => `${P[i].label}: <b class="${cls(P[i].pnl)}">${money(P[i].pnl)}</b>${det(P[i])}` });
+  if (metric === "ticks") barChart(P, { legend: "ticks", hv: p => p.ticks, stack: p => [[p.ticks, p.ticks >= 0 ? GAIN : LOSS]], label: p => Math.round(p.ticks), tip: i => `${P[i].label}: <b class="${cls(P[i].ticks)}">${tickS(P[i].ticks)}</b> тиков${det(P[i])}` });
+  if (metric === "trades") barChart(P, { legend: "trades", hv: p => p.trades, stack: p => [[p.trades, BRASS]], label: p => p.trades, tip: i => `${P[i].label}: <b>${P[i].trades}</b> сделок<small>${P[i].win} win · ${P[i].loss} loss</small>` });
   if (metric === "wl") barChart(P, { stack: p => [[p.win, GAIN], [-p.loss, LOSS]], label: p => [p.win, p.loss], yFmt: v => Math.abs(v), legend: "Win ↑ · Loss ↓", tip: i => `${P[i].label}: <b class="pos">${P[i].win}</b> win · <b class="neg">${P[i].loss}</b> loss<small>всего ${P[i].trades}</small>` });
-  if (metric === "wr") barChart(P, { stack: p => [[wrOf(p), BRASS]], label: p => Math.round(wrOf(p)), range: [0, 100], yFmt: v => v, legend: "%", tip: i => `${P[i].label}: <b>${wrOf(P[i]).toFixed(0)}%</b><small>${P[i].win} из ${P[i].trades} сделок</small>` });
+  if (metric === "wr") barChart(P, { stack: p => [[wrOf(p), BRASS]], label: p => Math.round(wrOf(p)), hv: wrOf, range: [0, 100], yFmt: v => v, legend: "%", tip: i => `${P[i].label}: <b>${wrOf(P[i]).toFixed(0)}%</b><small>${P[i].win} из ${P[i].trades} сделок</small>` });
   stats(P);
   $("tabs").innerHTML = Object.entries(UNITS).map(([k, u]) => `<button data-v="${k}" aria-pressed="${k === view}">${u.tab}</button>`).join("");
   $("mtabs").innerHTML = Object.entries(METRICS).filter(([k]) => avail(k)).map(([k, l]) => `<button data-m="${k}" aria-pressed="${k === metric}">${l}</button>`).join("");
@@ -599,10 +620,7 @@ function renderIntro() {
 }
 renderIntro();
 document.addEventListener("click", e => { const b = $("instbox"); if (b.open && !b.contains(e.target)) b.open = false; });
-document.addEventListener("pointerdown", e => {   // касание вне графика убирает подсказку
-  if (e.target.id === "hit" || e.target.id === "hit2") return;
-  $("tip").style.display = "none"; ["cx", "cx2"].forEach(id => { const c = $(id); if (c) c.setAttribute("opacity", 0); });
-});
+document.addEventListener("pointerdown", e => { if (!/_hit$/.test(e.target.id || "")) hideHover(); });   // касание вне графика убирает подсказки
 document.addEventListener("keydown", e => { if (e.key === "Escape") $("instbox").open = false; });
 $("disc").textContent = CONFIG.disclaimer;
 load();
