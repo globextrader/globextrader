@@ -439,7 +439,8 @@ function hover(n, x, text) {
     tip.style.display = "block"; tip.innerHTML = text(i);
     const wr = $("chart").parentElement.getBoundingClientRect();
     tip.style.left = Math.max(8, Math.min(e.clientX - wr.left + 14, wr.width - tip.offsetWidth - 8)) + "px";
-    tip.style.top = (e.pointerType === "touch" ? 48 : e.clientY - wr.top - 40) + "px";
+    const cb = $("chart").getBoundingClientRect(), top0 = cb.top - wr.top + 4;   // подсказка не заходит на кнопки над графиком
+    tip.style.top = Math.max(top0, e.pointerType === "touch" ? top0 : e.clientY - wr.top - 40) + "px";
   };
   hit.addEventListener("pointermove", move);
   hit.addEventListener("pointerdown", move);
@@ -583,6 +584,10 @@ function renderIntro() {
 }
 renderIntro();
 document.addEventListener("click", e => { const b = $("instbox"); if (b.open && !b.contains(e.target)) b.open = false; });
+document.addEventListener("pointerdown", e => {   // касание вне графика убирает подсказку
+  if (e.target.id === "hit") return;
+  $("tip").style.display = "none"; const c = $("cx"); if (c) c.setAttribute("opacity", 0);
+});
 document.addEventListener("keydown", e => { if (e.key === "Escape") $("instbox").open = false; });
 $("disc").textContent = CONFIG.disclaimer;
 load();
