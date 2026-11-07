@@ -185,7 +185,7 @@ const CONFIG = {
     name: "Scalping Globextrader",
     tagline: "Гибридный подход: системные правила и дискреционное исполнение",
     ledeMain: "Внутридневной скальпинг",
-    ledeTags: [["Фьючерсы", "на фондовые индексы США"], ["Опционы 0DTE", "на индексы и индексные ETF"]],
+    ledeTags: [["Фьючерсы", "на индексы США"], ["Опционы 0DTE", "на индексные ETF"]],
     approach: [
       ["Системная составляющая", "Торговый план, лимиты риска и параметры сделки определены заранее."],
       ["Дискреционная составляющая", "Решение о входе в сделку принимает трейдер с учётом текущей рыночной ситуации."]
@@ -349,6 +349,7 @@ function niceTicks(min, max) {
   for (let v = lo; v <= hi + step / 2; v += step) t.push(v);
   return t;
 }
+const axisNum = v => (v < 0 ? "−" : "") + (Math.abs(v) >= 1000 ? +(Math.abs(v) / 1000).toFixed(1) + "k" : Math.abs(v));
 let W = 1000, H = 380;
 const pad = { l: 60, r: 12, t: 26, b: 36 };
 function setSize() {   // размер графика подгоняется под ширину экрана, чтобы подписи не уменьшались на телефоне
@@ -381,16 +382,17 @@ function lineChart(P, vals, o) {
   const col = o.color || (vals[vals.length - 1] >= 0 ? "#6fc3a0" : "#d9806b");
   $("chart").innerHTML = g + xLabels(P, x, 8) +
     `<path d="M${x(0)},${y(0)} L${pts.join(" L")} L${x(P.length - 1)},${y(0)}Z" fill="${col}" opacity=".12"/>` +
-    `<polyline class="line" id="ln" points="${pts.join(" ")}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>` + overlay();
+    `<polyline class="line" id="ln" points="${pts.join(" ")}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>` +
+    (o.unit ? `<text x="${W - pad.r}" y="12" text-anchor="end" fill="#c9a96a" font-size="13">${o.unit}</text>` : "") + overlay();
   const ln = $("ln"); ln.style.setProperty("--len", ln.getTotalLength());
   if (o.dd) {
     let peak = 0; const dd = vals.map(v => (peak = Math.max(peak, v), v - peak));
     const dmin = Math.min(-1, ...dd), DH = 90, dy = v => 6 + (v / dmin) * (DH - 14);
     $("dd").style.display = "block";
     $("dd").innerHTML = `<text x="${pad.l - 8}" y="14" text-anchor="end" fill="#8da0b0" font-size="12">0</text>` +
-      `<text x="${pad.l - 8}" y="${DH - 6}" text-anchor="end" fill="#8da0b0" font-size="12">${Math.round(dmin).toLocaleString("en-US")}</text>` +
+      `<text x="${pad.l - 8}" y="${DH - 6}" text-anchor="end" fill="#8da0b0" font-size="12">${axisNum(Math.round(dmin))}</text>` +
       `<path d="M${x(0)},${dy(0)} L${dd.map((v, i) => `${x(i).toFixed(1)},${dy(v).toFixed(1)}`).join(" L")} L${x(P.length - 1)},${dy(0)}Z" fill="#d9806b" opacity=".35"/>` +
-      `<text x="${W - pad.r}" y="14" text-anchor="end" fill="#8da0b0" font-size="12">Просадка, $</text>`;
+      `<text x="${W - pad.r}" y="14" text-anchor="end" fill="#8da0b0" font-size="13">Drawdown, $</text>`;
   } else $("dd").style.display = "none";
   hover(P.length, x, o.tip);
 }
@@ -404,6 +406,10 @@ function barChart(P, o) {
   const slot = (W - pad.l - pad.r) / P.length, bw = Math.max(slot * 0.68, 1.5);
   const x = i => pad.l + slot * (i + 0.5);
   const fs = slot < 30 ? 10 : 12;
+  const maxLen = Math.max(...P.flatMap(p => [].concat(o.label(p)).map(t => String(t).length)));
+  const wPlain = maxLen * fs * 0.58;
+  const mode = o.prefix && slot >= wPlain + fs * 0.6 + 2 ? 2 : slot >= wPlain * 0.9 ? 1 : 0;   // 2: с "$", 1: только число, 0: без подписей
+  const lab = t => mode === 2 ? (String(t).startsWith("-") ? "−" + o.prefix + String(t).slice(1) : o.prefix + t) : t;
   let bars = "";
   P.forEach((p, i) => {
     let up = 0, dn = 0;
@@ -413,11 +419,11 @@ function barChart(P, o) {
       if (v >= 0) up = to; else dn = to;
       const y0 = y(from), y1 = y(to);
       if (v) bars += `<rect x="${x(i) - bw / 2}" y="${Math.min(y0, y1)}" width="${bw}" height="${Math.max(Math.abs(y1 - y0), 1)}" fill="${c}"/>`;
-      if (slot >= 20) bars += `<text x="${x(i)}" y="${v >= 0 ? y1 - 5 : y1 + 13}" text-anchor="middle" fill="#ece6d8" font-size="${fs}">${labels[j]}</text>`;
+      if (mode) bars += `<text x="${x(i)}" y="${v >= 0 ? y1 - 5 : y1 + 13}" text-anchor="middle" fill="#ece6d8" font-size="${fs}">${lab(labels[j])}</text>`;
     });
     if (!tops[i] && !bots[i]) bars += `<rect x="${x(i) - bw / 2}" y="${y(0) - 1}" width="${bw}" height="2" fill="#8da0b0"/>`;   // день без сделок: нулевой столбец
   });
-  const legend = o.legend ? `<text x="${W - pad.r}" y="12" text-anchor="end" fill="#8da0b0" font-size="12">${o.legend}</text>` : "";
+  const legend = o.legend ? `<text x="${W - pad.r}" y="12" text-anchor="end" fill="#c9a96a" font-size="13">${o.legend}</text>` : "";
   $("chart").innerHTML = g + bars + legend + xLabels(P, x, P.length <= 12 ? 12 : 14) + overlay();
   $("dd").style.display = "none";
   hover(P.length, x, o.tip);
@@ -482,8 +488,8 @@ let tblView = "day";
 function tables() {
   const u = UNITS[tblView];
   $("tblTabs").innerHTML = Object.entries(UNITS).map(([k, x]) => `<button data-v="${k}" aria-pressed="${k === tblView}">${x.tab}</button>`).join("");
-  const cols = [[u.col, null], ["Сделок", "trades"], ["Приб.", "win"], ["Убыт.", "loss"], ["Винрейт", "wr"], ["Total ticks", "ticks"]].filter(c => !c[1] || (c[1] === "wr" ? has.win && has.trades : has[c[1]]));
-  $("thead").innerHTML = `<tr>${cols.map(c => `<th>${c[0]}</th>`).join("")}<th>P&L, $</th><th>Накоплено, $</th>${cap ? "<th>%</th>" : ""}</tr>`;
+  const cols = [[u.col, null], ["Trades", "trades"], ["Win", "win"], ["Loss", "loss"], ["Win rate", "wr"], ["Total ticks", "ticks"]].filter(c => !c[1] || (c[1] === "wr" ? has.win && has.trades : has[c[1]]));
+  $("thead").innerHTML = `<tr>${cols.map(c => `<th>${c[0]}</th>`).join("")}<th>P&L, $</th><th>Cum. P&L, $</th>${cap ? "<th>%</th>" : ""}</tr>`;
   let cc = 0; const all = periods(tblView).map(p => ({ ...p, cum: (cc += p.pnl) }));
   const rows = all.reverse().slice(0, tblView === "day" ? 60 : 999);
   $("tbody").innerHTML = rows.map(p => "<tr>" + cols.map(c => !c[1] ? `<td>${p.label}</td>` : c[1] === "ticks" ? `<td class="${cls(p.ticks)}">${tickS(p.ticks)}</td>` : c[1] === "wr" ? `<td>${p.trades ? Math.round(p.win / p.trades * 100) + "%" : "—"}</td>` : `<td>${p[c[1]]}</td>`).join("") +
@@ -491,7 +497,7 @@ function tables() {
 }
 $("tblTabs").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { tblView = b.dataset.v; tables(); } });
 let metric = "cum";
-const METRICS = { cum: "Накопленный P&L", pnl: "P&L", ticks: "Total ticks", trades: "Сделки", wl: "Win / Loss", wr: "Винрейт" };
+const METRICS = { cum: "Cumulative P&L", pnl: "P&L", ticks: "Total ticks", trades: "Trades", wl: "Win / Loss", wr: "Win rate" };
 const avail = k => k === "ticks" ? has.ticks : k === "trades" ? has.trades : k === "wl" ? has.win && has.loss : k === "wr" ? has.win && has.trades : true;
 const GAIN = "#6fc3a0", LOSS = "#d9806b", BRASS = "#c9a96a";
 const wrOf = p => (p.trades ? p.win / p.trades * 100 : 0);
@@ -502,12 +508,12 @@ function render() {
   const P = periods(view);
   let c = 0; const cum = P.map(p => (c += p.pnl));
   const det = p => `<small>${p.trades ? `${p.trades} сделок · ${p.win} win · ${p.loss} loss` : ""}</small>`;
-  if (metric === "cum") lineChart(P, cum, { dd: view === "day", tip: i => `${P[i].label}: <b class="${cls(cum[i])}">${money(cum[i])}</b><small>за период ${money(P[i].pnl)}</small>` });
-  if (metric === "pnl") barChart(P, { stack: p => [[p.pnl, p.pnl >= 0 ? GAIN : LOSS]], label: p => Math.round(p.pnl), tip: i => `${P[i].label}: <b class="${cls(P[i].pnl)}">${money(P[i].pnl)}</b>${det(P[i])}` });
-  if (metric === "ticks") barChart(P, { stack: p => [[p.ticks, p.ticks >= 0 ? GAIN : LOSS]], label: p => Math.round(p.ticks), tip: i => `${P[i].label}: <b class="${cls(P[i].ticks)}">${tickS(P[i].ticks)}</b> тиков${det(P[i])}` });
-  if (metric === "trades") barChart(P, { stack: p => [[p.trades, BRASS]], label: p => p.trades, tip: i => `${P[i].label}: <b>${P[i].trades}</b> сделок<small>${P[i].win} win · ${P[i].loss} loss</small>` });
-  if (metric === "wl") barChart(P, { stack: p => [[p.win, GAIN], [-p.loss, LOSS]], label: p => [p.win, p.loss], yFmt: v => Math.abs(v), legend: "Вверх — win, вниз — loss", tip: i => `${P[i].label}: <b class="pos">${P[i].win}</b> win · <b class="neg">${P[i].loss}</b> loss<small>всего ${P[i].trades}</small>` });
-  if (metric === "wr") barChart(P, { stack: p => [[wrOf(p), BRASS]], label: p => Math.round(wrOf(p)) + "%", range: [0, 100], yFmt: v => v + "%", tip: i => `${P[i].label}: <b>${wrOf(P[i]).toFixed(0)}%</b><small>${P[i].win} из ${P[i].trades} сделок</small>` });
+  if (metric === "cum") lineChart(P, cum, { dd: view === "day", yFmt: axisNum, unit: "$", tip: i => `${P[i].label}: <b class="${cls(cum[i])}">${money(cum[i])}</b><small>за период ${money(P[i].pnl)}</small>` });
+  if (metric === "pnl") barChart(P, { stack: p => [[p.pnl, p.pnl >= 0 ? GAIN : LOSS]], label: p => Math.round(p.pnl), yFmt: axisNum, legend: "$", tip: i => `${P[i].label}: <b class="${cls(P[i].pnl)}">${money(P[i].pnl)}</b>${det(P[i])}` });
+  if (metric === "ticks") barChart(P, { legend: "ticks", stack: p => [[p.ticks, p.ticks >= 0 ? GAIN : LOSS]], label: p => Math.round(p.ticks), tip: i => `${P[i].label}: <b class="${cls(P[i].ticks)}">${tickS(P[i].ticks)}</b> тиков${det(P[i])}` });
+  if (metric === "trades") barChart(P, { legend: "trades", stack: p => [[p.trades, BRASS]], label: p => p.trades, tip: i => `${P[i].label}: <b>${P[i].trades}</b> сделок<small>${P[i].win} win · ${P[i].loss} loss</small>` });
+  if (metric === "wl") barChart(P, { stack: p => [[p.win, GAIN], [-p.loss, LOSS]], label: p => [p.win, p.loss], yFmt: v => Math.abs(v), legend: "Win ↑ · Loss ↓", tip: i => `${P[i].label}: <b class="pos">${P[i].win}</b> win · <b class="neg">${P[i].loss}</b> loss<small>всего ${P[i].trades}</small>` });
+  if (metric === "wr") barChart(P, { stack: p => [[wrOf(p), BRASS]], label: p => Math.round(wrOf(p)), range: [0, 100], yFmt: v => v, legend: "%", tip: i => `${P[i].label}: <b>${wrOf(P[i]).toFixed(0)}%</b><small>${P[i].win} из ${P[i].trades} сделок</small>` });
   stats(P);
   $("tabs").innerHTML = Object.entries(UNITS).map(([k, u]) => `<button data-v="${k}" aria-pressed="${k === view}">${u.tab}</button>`).join("");
   $("mtabs").innerHTML = Object.entries(METRICS).filter(([k]) => avail(k)).map(([k, l]) => `<button data-m="${k}" aria-pressed="${k === metric}">${l}</button>`).join("");
@@ -564,7 +570,7 @@ function renderIntro() {
   const S = CONFIG.strategy;
   document.title = S.name + " — результаты";
   $("eyebrow").textContent = S.eyebrow; $("name").textContent = S.name; $("tagline").textContent = S.tagline; $("ledeMain").textContent = S.ledeMain;
-  $("ledeTags").innerHTML = S.ledeTags.map(t => `<li><b>${t[0]}</b><span>${t[1]}</span></li>`).join("");
+  $("ledeTags").innerHTML = S.ledeTags.map(t => `<li><span class="t"><b>${t[0]}</b> ${t[1]}</span></li>`).join("");
   $("duo").innerHTML = S.approach.map(a => `<div><b>${a[0]}</b><span>${a[1]}</span></div>`).join("");
   $("pills").insertAdjacentHTML("afterbegin", S.pills.map(p => `<li><b>${p[0]}</b>${p[1]}</li>`).join(""));
   $("curInst").textContent = (S.groups.flatMap(g => g.items).find(i => i.live) || {}).sym || "";
