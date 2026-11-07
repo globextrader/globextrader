@@ -16,10 +16,9 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .brand{font:500 13px "IBM Plex Sans",sans-serif;letter-spacing:.3em;text-transform:uppercase}
 .brand::before{content:"";display:inline-block;width:28px;height:1px;background:var(--brass);vertical-align:middle;margin-right:14px}
 .meta{color:var(--mute);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
-.hero{padding:64px 0 44px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:56px;align-items:end}
+.hero{padding:64px 0 52px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:56px;align-items:stretch}
 .eyebrow{color:var(--brass);font-size:12px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:18px}
 .name{font:400 clamp(40px,6.2vw,84px)/1 Newsreader,Georgia,serif;margin:0;letter-spacing:-.02em}
-.tagline{color:var(--mute);margin:14px 0 0;font-size:15px;letter-spacing:.04em}
 .lede{margin:24px 0 0}
 .lede-main{font:400 clamp(28px,3.4vw,40px)/1.1 Newsreader,Georgia,serif;letter-spacing:-.01em}
 .lede-tags{list-style:none;padding:0;margin:16px 0 0;display:flex;flex-wrap:wrap;gap:10px 32px}
@@ -27,38 +26,35 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .lede-tags li::before{content:"";width:6px;height:6px;background:var(--brass);transform:rotate(45deg);flex:none;position:relative;top:-3px}
 .lede-tags b{font-weight:400;color:var(--ink)}
 .lede-tags span{color:var(--mute)}
-.duo{display:grid;grid-template-columns:1fr 1fr;margin-top:26px;border-top:1px solid var(--line);max-width:560px}
+.duo{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);max-width:600px}
 .duo div{padding:14px 22px 0 0}
 .duo div+div{padding:14px 0 0 22px;border-left:1px solid var(--line)}
 .duo b{display:block;font:500 11px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:6px}
 .duo span{color:var(--mute);font-size:14px;line-height:1.55}
-.pills{list-style:none;padding:0;margin:26px 0 0;display:flex;flex-wrap:wrap;gap:8px}
-.pills li{border:1px solid var(--line);padding:6px 12px;font-size:12.5px;color:var(--mute)}
-.pills b{color:var(--ink);font-weight:500;margin-right:8px;letter-spacing:.12em;text-transform:uppercase;font-size:11px}
-.result{border-left:1px solid var(--line);padding-left:40px}
+.result{position:relative;background:var(--panel);border:1px solid var(--line);padding:30px 32px 22px;display:flex;flex-direction:column;justify-content:space-between}
+.result::before{content:"";position:absolute;left:-1px;top:-1px;width:64px;height:2px;background:var(--brass)}
+.approach{margin-top:30px}
+.ap-cap{color:var(--mute);font-size:14px;margin:0 0 14px}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.rgrid > div{padding:14px 14px 12px 0}
+.rgrid > div:nth-child(3n+2),.rgrid > div:nth-child(3n){padding-left:16px;border-left:1px solid var(--line)}
+.rgrid > div:nth-child(n+4){border-top:1px solid var(--line)}
+.rgrid > div > span{display:block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-bottom:5px}
+.rgrid > div > b,.rgrid summary b{font-weight:400;font-size:14px;line-height:1.4;color:var(--ink)}
 .rl{display:flex;align-items:center;gap:14px;color:var(--mute);font-size:12px;letter-spacing:.22em;text-transform:uppercase}
 .rl::before{content:"";width:28px;height:1px;background:var(--brass)}
 .tag{font-style:normal;color:var(--ink);border:1px solid var(--line);padding:2px 9px;letter-spacing:.14em}
 .csign{font-size:.46em;vertical-align:.78em;margin-right:.1em;opacity:.8}
-.rmeta{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;border-top:1px solid var(--line);max-width:540px}
-.rmeta div{padding:12px 22px 0 0}
-.rmeta div+div{padding-left:20px;border-left:1px solid var(--line)}
-.rmeta span{display:block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-bottom:4px}
-.rmeta b{font-weight:400;font-size:14px;color:var(--ink);white-space:nowrap}
-#total{font:400 clamp(52px,8vw,104px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:22px 0 26px}
+#total{font:400 clamp(52px,7.4vw,100px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:20px 0 26px}
 #total small{font-size:.32em;margin-left:.3em}
-.cap{color:var(--mute);font-size:13px;max-width:38ch}
-.intro{position:relative}
-.pills .ddli{padding:0;transition:border-color .2s}
-.pills .ddli:hover,.pills .ddli:has(.instbox[open]){border-color:var(--brass)}
-.instbox summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:6px 12px}
+.instbox summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:0}
 .instbox summary::-webkit-details-marker{display:none}
 .instbox summary b{margin-right:0}
-.instbox summary .cur{color:var(--ink)}
+.instbox summary:hover,.instbox summary:hover b,.instbox[open] summary b{color:var(--brass)}
 .instbox summary:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
 .chev{width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin:-3px 0 0 4px;transition:transform .2s}
 .instbox[open] .chev{transform:rotate(-135deg);margin-top:3px}
-.groups{position:absolute;left:0;top:calc(100% + 10px);z-index:20;width:min(700px,calc(100vw - 28px));display:grid;grid-template-columns:1fr;gap:22px;margin:0;padding:22px;background:var(--panel);border:1px solid var(--line);box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.groups{position:absolute;right:0;top:calc(100% + 10px);z-index:20;width:min(700px,calc(100vw - 28px));display:grid;grid-template-columns:1fr;gap:22px;margin:0;padding:22px;background:var(--panel);border:1px solid var(--line);box-shadow:0 18px 50px rgba(0,0,0,.5)}
 .grp h3{font:500 12px "IBM Plex Sans",sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);margin:0 0 4px}
 .gnote{color:var(--mute);font-size:13px;margin:0 0 14px}
 .icards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
@@ -100,14 +96,14 @@ td:first-child{position:sticky;left:0;background:var(--bg)}
 html{-webkit-text-size-adjust:100%}
 @media (max-width:860px){
   .hero{grid-template-columns:1fr;gap:32px;padding:40px 0 32px}
-  .result{border-left:0;border-top:1px solid var(--line);padding:24px 0 0}
+  .result{padding:24px 20px 16px}
   .groups{grid-template-columns:1fr}
 }
 @media (max-width:640px){
-  .rmeta{grid-template-columns:1fr 1fr;max-width:none}
-  .rmeta div:first-child{grid-column:1/-1;padding-bottom:10px}
-  .rmeta div:nth-child(2){padding-left:0;border-left:0;border-top:1px solid var(--line);padding-top:10px}
-  .rmeta div:nth-child(3){border-top:1px solid var(--line);padding-top:10px}
+  .rgrid{grid-template-columns:1fr 1fr}
+  .rgrid > div:nth-child(n){padding:12px 12px 10px 0;border-left:0;border-top:1px solid var(--line)}
+  .rgrid > div:nth-child(2n){padding-left:14px;border-left:1px solid var(--line)}
+  .rgrid > div:nth-child(-n+2){border-top:0}
   .duo{grid-template-columns:1fr}
   .duo div+div{padding:14px 0 0;border-left:0;border-top:1px solid var(--line);margin-top:14px}
   .duo div{padding-right:0}
@@ -138,20 +134,16 @@ footer{margin-top:40px;color:var(--mute);font-size:12px;max-width:80ch}
   <div class="intro">
     <div class="eyebrow" id="eyebrow"></div>
     <h1 class="name" id="name"></h1>
-    <p class="tagline" id="tagline"></p>
     <div class="lede"><div class="lede-main" id="ledeMain"></div><ul class="lede-tags" id="ledeTags"></ul></div>
-    <div class="duo" id="duo"></div>
-    <ul class="pills" id="pills">
-      <li class="ddli"><details class="instbox" id="instbox">
-        <summary><b>Инструмент</b><span class="cur" id="curInst"></span><span class="chev"></span></summary>
-        <div class="groups" id="insts"></div>
-      </details></li>
-    </ul>
+    <div class="approach">
+      <div class="ap-cap" id="tagline"></div>
+      <div class="duo" id="duo"></div>
+    </div>
   </div>
   <div class="result">
     <div class="rl"><span>Результат</span><i class="tag">ES</i></div>
     <div class="num" id="total">—</div>
-    <div class="rmeta" id="cap"></div>
+    <div class="rgrid" id="cap"></div>
   </div>
 </section>
 
@@ -203,7 +195,7 @@ const CONFIG = {
       ["Системная составляющая", "Торговый план, лимиты риска и параметры сделки определены заранее."],
       ["Дискреционная составляющая", "Решение о входе в сделку принимает трейдер с учётом текущей рыночной ситуации."]
     ],
-    pills: [["Торговое окно", "09:30–11:00 (Нью-Йорк, ET)"], ["Объём", "1 контракт, без реинвестирования"], ["Комиссия", "$4 за сделку, учтена"]],
+    specs: [["Торговое окно", "09:30–11:00 ET, Нью-Йорк"], ["Объём", "1 контракт, без реинвестирования"], ["Стоимость тика", "$12,50"], ["Комиссия", "$4 за сделку, учтена"]],
     // href: ссылка на страницу со статистикой инструмента (когда появится); live: true — результаты уже на этой странице
     groups: [
       { title: "Фьючерсы", tickLabel: "Тик", note: "CME · торговля 09:30–11:00 ET", items: [
@@ -519,7 +511,7 @@ function stats(P) {
   ];
   $("stats").innerHTML = items.map(([a, b, c2]) => `<div><dt>${a}</dt><dd class="num ${c2}">${b}</dd></div>`).join("");
   $("total").innerHTML = `<span class="${cls(total)}"><span class="csign">${total >= 0 ? "+" : "−"}$</span>${Math.abs(Math.round(total)).toLocaleString("en-US")}</span>` + (cap ? `<small class="${cls(total)}">${pctS(total)}</small>` : "");
-  $("cap").innerHTML = `<div><span>Период</span><b>${fmtDate(days[0].t)} – ${fmtDate(days[days.length - 1].t)}</b></div><div><span>Стоимость тика</span><b>$12,50</b></div><div><span>Комиссии</span><b>учтены</b></div>`;
+  $("period").textContent = `${fmtDate(days[0].t)} – ${fmtDate(days[days.length - 1].t)}`;
 }
 let tblView = "day";
 function tables() {
@@ -609,7 +601,8 @@ function renderIntro() {
   $("eyebrow").textContent = S.eyebrow; $("name").textContent = S.name; $("tagline").textContent = S.tagline; $("ledeMain").textContent = S.ledeMain;
   $("ledeTags").innerHTML = S.ledeTags.map(t => `<li><span class="t"><b>${t[0]}</b> ${t[1]}</span></li>`).join("");
   $("duo").innerHTML = S.approach.map(a => `<div><b>${a[0]}</b><span>${a[1]}</span></div>`).join("");
-  $("pills").insertAdjacentHTML("afterbegin", S.pills.map(p => `<li><b>${p[0]}</b>${p[1]}</li>`).join(""));
+  const cells = [["Период", `<b id="period">—</b>`]].concat(S.specs.map(p => [p[0], `<b>${p[1]}</b>`]), [["Инструмент", `<details class="instbox" id="instbox"><summary><b id="curInst"></b><i class="chev"></i></summary><div class="groups" id="insts"></div></details>`]]);
+  $("cap").innerHTML = cells.map(c => `<div><span>${c[0]}</span>${c[1]}</div>`).join("");
   $("curInst").textContent = (S.groups.flatMap(g => g.items).find(i => i.live) || {}).sym || "";
   const row = (k, v) => `<div><dt>${k}</dt><dd>${v || "—"}</dd></div>`;
   const card = (i, lbl) => {
