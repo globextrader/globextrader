@@ -392,7 +392,9 @@ function lineChart(P, vals, o) {
     $("dd").innerHTML = `<text x="${pad.l - 8}" y="14" text-anchor="end" fill="#8da0b0" font-size="12">0</text>` +
       `<text x="${pad.l - 8}" y="${DH - 6}" text-anchor="end" fill="#8da0b0" font-size="12">${axisNum(Math.round(dmin))}</text>` +
       `<path d="M${x(0)},${dy(0)} L${dd.map((v, i) => `${x(i).toFixed(1)},${dy(v).toFixed(1)}`).join(" L")} L${x(P.length - 1)},${dy(0)}Z" fill="#d9806b" opacity=".35"/>` +
-      `<text x="${W - pad.r}" y="14" text-anchor="end" fill="#8da0b0" font-size="13">Drawdown, $</text>`;
+      `<text x="${W - pad.r}" y="14" text-anchor="end" fill="#8da0b0" font-size="13">Drawdown, $</text>` +
+      `<line id="cx2" y1="0" y2="${DH}" stroke="#8da0b0" opacity="0"/><rect id="hit2" x="${pad.l}" y="0" width="${W - pad.l - pad.r}" height="${DH}" fill="transparent" style="touch-action:pan-y"/>`;
+    hover(P.length, x, i => `${P[i].label}: <b class="${dd[i] < 0 ? "neg" : ""}">${dd[i] < 0 ? money(dd[i]) : "$0"}</b><small>Drawdown from peak</small>`, "dd", "hit2");
   } else $("dd").style.display = "none";
   hover(P.length, x, o.tip);
 }
@@ -429,22 +431,23 @@ function barChart(P, o) {
   hover(P.length, x, o.tip);
 }
 
-function hover(n, x, text) {
-  const hit = $("hit"), tip = $("tip"), cx = $("cx");
+function hover(n, x, text, svgId = "chart", hitId = "hit") {
+  const hit = $(hitId), tip = $("tip");
+  const lines = f => ["cx", "cx2"].forEach(id => { const c = $(id); if (c) f(c); });
   const move = e => {
-    const box = $("chart").getBoundingClientRect(), px = ((e.clientX - box.left) / box.width) * W;
+    const box = $(svgId).getBoundingClientRect(), px = ((e.clientX - box.left) / box.width) * W;
     let i = 0, best = 1e9;
     for (let k = 0; k < n; k++) { const dist = Math.abs(x(k) - px); if (dist < best) { best = dist; i = k; } }
-    cx.setAttribute("x1", x(i)); cx.setAttribute("x2", x(i)); cx.setAttribute("opacity", 1);
+    lines(c => { c.setAttribute("x1", x(i)); c.setAttribute("x2", x(i)); c.setAttribute("opacity", 1); });
     tip.style.display = "block"; tip.innerHTML = text(i);
     const wr = $("chart").parentElement.getBoundingClientRect();
     tip.style.left = Math.max(8, Math.min(e.clientX - wr.left + 14, wr.width - tip.offsetWidth - 8)) + "px";
-    const cb = $("chart").getBoundingClientRect(), top0 = cb.top - wr.top + 4;   // подсказка не заходит на кнопки над графиком
+    const top0 = box.top - wr.top + 4;   // подсказка не заходит на кнопки над графиком
     tip.style.top = Math.max(top0, e.pointerType === "touch" ? top0 : e.clientY - wr.top - 40) + "px";
   };
   hit.addEventListener("pointermove", move);
   hit.addEventListener("pointerdown", move);
-  hit.addEventListener("pointerleave", e => { if (e.pointerType === "touch") return; tip.style.display = "none"; cx.setAttribute("opacity", 0); });
+  hit.addEventListener("pointerleave", e => { if (e.pointerType === "touch") return; tip.style.display = "none"; lines(c => c.setAttribute("opacity", 0)); });
 }
 
 /* ---------- статистика и таблица ---------- */
@@ -585,8 +588,8 @@ function renderIntro() {
 renderIntro();
 document.addEventListener("click", e => { const b = $("instbox"); if (b.open && !b.contains(e.target)) b.open = false; });
 document.addEventListener("pointerdown", e => {   // касание вне графика убирает подсказку
-  if (e.target.id === "hit") return;
-  $("tip").style.display = "none"; const c = $("cx"); if (c) c.setAttribute("opacity", 0);
+  if (e.target.id === "hit" || e.target.id === "hit2") return;
+  $("tip").style.display = "none"; ["cx", "cx2"].forEach(id => { const c = $(id); if (c) c.setAttribute("opacity", 0); });
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape") $("instbox").open = false; });
 $("disc").textContent = CONFIG.disclaimer;
