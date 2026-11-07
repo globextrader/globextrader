@@ -17,24 +17,22 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .brand::before{content:"";display:inline-block;width:28px;height:1px;background:var(--brass);vertical-align:middle;margin-right:14px}
 .meta{color:var(--mute);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
 .hero{padding:64px 0 52px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:56px;align-items:stretch}
+.statement{font:400 clamp(26px,3.1vw,40px)/1.18 Newsreader,Georgia,serif;letter-spacing:-.01em;margin:22px 0 0;max-width:19em}
+.statement .s1{color:var(--ink)}
+.statement .s2{display:block;color:var(--mute);margin-top:2px}
+.ap-head{margin-bottom:16px}
+.ap-title{font:400 clamp(24px,2.6vw,32px)/1.1 Newsreader,Georgia,serif;display:flex;align-items:center;gap:16px}
+.ap-title::before{content:"";width:34px;height:1px;background:var(--brass)}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:620px}
+.duo div{background:var(--panel);border:1px solid var(--line);padding:16px 18px 18px}
+.duo b{display:flex;align-items:baseline;font:500 11px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:8px}
+.duo b i{font:400 20px Newsreader,Georgia,serif;font-style:normal;letter-spacing:0;margin-right:12px}
+.duo span{display:block;color:var(--mute);font-size:14px;line-height:1.55}
 .eyebrow{color:var(--brass);font-size:12px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:18px}
 .name{font:400 clamp(40px,6.2vw,84px)/1 Newsreader,Georgia,serif;margin:0;letter-spacing:-.02em}
-.lede{margin:24px 0 0}
-.lede-main{font:400 clamp(28px,3.4vw,40px)/1.1 Newsreader,Georgia,serif;letter-spacing:-.01em}
-.lede-tags{list-style:none;padding:0;margin:16px 0 0;display:flex;flex-wrap:wrap;gap:10px 32px}
-.lede-tags li{display:flex;align-items:baseline;gap:12px;font:400 19px Newsreader,Georgia,serif}
-.lede-tags li::before{content:"";width:6px;height:6px;background:var(--brass);transform:rotate(45deg);flex:none;position:relative;top:-3px}
-.lede-tags b{font-weight:400;color:var(--ink)}
-.lede-tags span{color:var(--mute)}
-.duo{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);max-width:600px}
-.duo div{padding:14px 22px 0 0}
-.duo div+div{padding:14px 0 0 22px;border-left:1px solid var(--line)}
-.duo b{display:block;font:500 11px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:6px}
-.duo span{color:var(--mute);font-size:14px;line-height:1.55}
 .result{position:relative;background:var(--panel);border:1px solid var(--line);padding:30px 32px 22px;display:flex;flex-direction:column;justify-content:space-between}
 .result::before{content:"";position:absolute;left:-1px;top:-1px;width:64px;height:2px;background:var(--brass)}
 .approach{margin-top:30px}
-.ap-cap{color:var(--mute);font-size:14px;margin:0 0 14px}
 .rgrid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
 .rgrid > div{padding:14px 14px 12px 0}
 .rgrid > div:nth-child(3n+2),.rgrid > div:nth-child(3n){padding-left:16px;border-left:1px solid var(--line)}
@@ -100,13 +98,11 @@ html{-webkit-text-size-adjust:100%}
   .groups{grid-template-columns:1fr}
 }
 @media (max-width:640px){
+  .duo{grid-template-columns:1fr}
   .rgrid{grid-template-columns:1fr 1fr}
   .rgrid > div:nth-child(n){padding:12px 12px 10px 0;border-left:0;border-top:1px solid var(--line)}
   .rgrid > div:nth-child(2n){padding-left:14px;border-left:1px solid var(--line)}
   .rgrid > div:nth-child(-n+2){border-top:0}
-  .duo{grid-template-columns:1fr}
-  .duo div+div{padding:14px 0 0;border-left:0;border-top:1px solid var(--line);margin-top:14px}
-  .duo div{padding-right:0}
   body{padding:0 14px 36px}
   header{padding:18px 0}
   .brand span{display:block;margin:2px 0 0}
@@ -134,9 +130,9 @@ footer{margin-top:40px;color:var(--mute);font-size:12px;max-width:80ch}
   <div class="intro">
     <div class="eyebrow" id="eyebrow"></div>
     <h1 class="name" id="name"></h1>
-    <div class="lede"><div class="lede-main" id="ledeMain"></div><ul class="lede-tags" id="ledeTags"></ul></div>
+    <p class="statement" id="statement"></p>
     <div class="approach">
-      <div class="ap-cap" id="tagline"></div>
+      <div class="ap-head"><div class="ap-title" id="apTitle"></div></div>
       <div class="duo" id="duo"></div>
     </div>
   </div>
@@ -188,12 +184,12 @@ const CONFIG = {
   strategy: {
     eyebrow: "Торговая стратегия",
     name: "Scalping Globextrader",
-    tagline: "Гибридный подход: системные правила и дискреционное исполнение",
+    approachTitle: "Гибридный подход",
     ledeMain: "Внутридневной скальпинг",
-    ledeTags: [["Фьючерсы", "на индексы США"], ["Опционы 0DTE", "на индексные ETF"]],
+    ledeSub: ["Фьючерсы и опционы 0DTE", "на индексы США"],
     approach: [
-      ["Системная составляющая", "Торговый план, лимиты риска и параметры сделки определены заранее."],
-      ["Дискреционная составляющая", "Решение о входе в сделку принимает трейдер с учётом текущей рыночной ситуации."]
+      ["Системные правила", "Торговый план, лимиты риска и параметры сделки определены заранее."],
+      ["Дискреционное исполнение", "Решение о входе в сделку принимает трейдер с учётом текущей рыночной ситуации."]
     ],
     specs: [["Торговое окно", "09:30–11:00 ET, Нью-Йорк"], ["Объём", "1 контракт, без реинвестирования"], ["Стоимость тика", "$12,50"], ["Комиссия", "$4 за сделку, учтена"]],
     // href: ссылка на страницу со статистикой инструмента (когда появится); live: true — результаты уже на этой странице
@@ -598,9 +594,9 @@ async function load() {
 function renderIntro() {
   const S = CONFIG.strategy;
   document.title = S.name + " — результаты";
-  $("eyebrow").textContent = S.eyebrow; $("name").textContent = S.name; $("tagline").textContent = S.tagline; $("ledeMain").textContent = S.ledeMain;
-  $("ledeTags").innerHTML = S.ledeTags.map(t => `<li><span class="t"><b>${t[0]}</b> ${t[1]}</span></li>`).join("");
-  $("duo").innerHTML = S.approach.map(a => `<div><b>${a[0]}</b><span>${a[1]}</span></div>`).join("");
+  $("eyebrow").textContent = S.eyebrow; $("name").textContent = S.name; $("apTitle").textContent = S.approachTitle;
+  $("statement").innerHTML = `<span class="s1">${S.ledeMain}.</span> <span class="s2">${S.ledeSub[0]} ${S.ledeSub[1]}.</span>`;
+  $("duo").innerHTML = S.approach.map((a, k) => `<div><b><i>0${k + 1}</i>${a[0]}</b><span>${a[1]}</span></div>`).join("");
   const cells = [["Период", `<b id="period">—</b>`]].concat(S.specs.map(p => [p[0], `<b>${p[1]}</b>`]), [["Инструмент", `<details class="instbox" id="instbox"><summary><b id="curInst"></b><i class="chev"></i></summary><div class="groups" id="insts"></div></details>`]]);
   $("cap").innerHTML = cells.map(c => `<div><span>${c[0]}</span>${c[1]}</div>`).join("");
   $("curInst").textContent = (S.groups.flatMap(g => g.items).find(i => i.live) || {}).sym || "";
