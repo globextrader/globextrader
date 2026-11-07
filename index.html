@@ -82,6 +82,9 @@ a.inst:hover{background:#18303f}
 svg{display:block;width:100%;height:auto;overflow:visible}
 .tip small{color:var(--mute);margin-left:6px}
 .tip{position:absolute;pointer-events:none;background:var(--bg);border:1px solid var(--line);padding:6px 10px;font-size:13px;display:none;white-space:nowrap}
+.subhead{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:26px 0 10px}
+.subhead span{font:500 11px "IBM Plex Sans",sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--brass)}
+.subhead .tabs{margin:0}
 h2{font:400 20px Newsreader,Georgia,serif;margin:40px 0 12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);margin:0}
 .grid div{padding:16px 18px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
@@ -151,10 +154,11 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
 
 
 <h2 class="dh">Общая статистика</h2>
-<div class="tabs" id="sTabs"></div>
 <dl class="grid" id="stats"></dl>
+<div class="subhead dh"><span>По периодам</span><div class="tabs" id="sTabs"></div></div>
+<dl class="grid" id="dstats"></dl>
 
-<h2 class="dh">Диаграмма</h2>
+<h2 class="dh">Детальная статистика</h2>
 <section class="chartwrap" aria-label="График результатов">
   <div class="tabs" id="tabs"></div>
   <div class="tabs" id="mtabs"></div>
@@ -166,7 +170,7 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
 <div class="status" id="status"></div>
 <pre class="status" id="debug" style="white-space:pre-wrap;display:none"></pre>
 
-<h2 class="dh">Таблица по периодам</h2>
+<h2 class="dh">Детальная таблица</h2>
 <div class="tabs" id="tblTabs"></div>
 <div class="tablewrap"><table class="num"><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
 
@@ -500,20 +504,24 @@ function stats(P) {
   const gain = dv.filter(x => x > 0).reduce((a, b) => a + b, 0), loss = -dv.filter(x => x < 0).reduce((a, b) => a + b, 0);
   const k = Math.sqrt(CONFIG.periodsPerYear);
   const extra = tradeItems();
-  const items = [
+  const tile = ([a, b, c2]) => `<div><dt>${a}</dt><dd class="num ${c2}">${b}</dd></div>`;
+  const fixed = [   // не зависят от выбранного периода
     ["Общий результат", val(total), cls(total)],
     ["Макс. просадка", val(mdd), "neg"],
-    [u.avg, val(v.reduce((a, b) => a + b, 0) / v.length), cls(v.reduce((a, b) => a + b, 0))],
-    [u.pos, (v.filter(x => x > 0).length / v.length * 100).toFixed(1) + "%", ""],
-    [u.best, val(Math.max(...v)), "pos"],
-    [u.worst, val(Math.min(...v)), cls(Math.min(...v))],
     ["Profit factor", loss ? (gain / loss).toFixed(2) : "—", ""],
     ["Коэффициент Шарпа", sd ? (mean / sd * k).toFixed(2) : "—", ""],
     ["Коэффициент Сортино", down ? (mean / down * k).toFixed(2) : "—", ""],
     ["Торговых дней", String(n), ""],
     ...extra
   ];
-  $("stats").innerHTML = items.map(([a, b, c2]) => `<div><dt>${a}</dt><dd class="num ${c2}">${b}</dd></div>`).join("");
+  const dynamic = [   // меняются с кнопками Дни / Недели / Месяцы
+    [u.avg, val(v.reduce((a, b) => a + b, 0) / v.length), cls(v.reduce((a, b) => a + b, 0))],
+    [u.pos, (v.filter(x => x > 0).length / v.length * 100).toFixed(1) + "%", ""],
+    [u.best, val(Math.max(...v)), "pos"],
+    [u.worst, val(Math.min(...v)), cls(Math.min(...v))]
+  ];
+  $("stats").innerHTML = fixed.map(tile).join("");
+  $("dstats").innerHTML = dynamic.map(tile).join("");
   $("total").innerHTML = `<span class="${cls(total)}"><span class="csign">${total >= 0 ? "+" : "−"}$</span>${Math.abs(Math.round(total)).toLocaleString("en-US")}</span>` + (cap ? `<small class="${cls(total)}">${pctS(total)}</small>` : "");
   const tk = days.reduce((a, d) => a + (d.ticks || 0), 0);   // общее число тиков рядом с итоговой суммой
   $("tk").innerHTML = has.ticks ? `<span>Total ticks</span><b class="${cls(tk)}">${tickS(tk)}</b>` : "";
@@ -591,12 +599,12 @@ async function load() {
   if (days.length < 2) {
     if (CONFIG.sheetCsvUrl) {   // реальный сайт: демо-цифры не показываем никогда
       $("status").textContent = note || ("Не удалось прочитать данные из таблицы" + (dbg && dbg.problem ? ": " + dbg.problem : "") + ". Откройте страницу с ?debug для диагностики.");
-      document.querySelectorAll(".result, .chartwrap, .dh, #sTabs, #stats, #tblTabs, .tablewrap").forEach(e => e.style.display = "none");
+      document.querySelectorAll(".result, .chartwrap, .dh, #stats, #dstats, #tblTabs, .tablewrap").forEach(e => e.style.display = "none");
       showDebug(); setTimeout(load, 10 * 60000); return;
     }
     days = demoData(); note = note || "Демо-данные.";
   }
-  document.querySelectorAll(".result, .chartwrap, .dh, #sTabs, #stats, #tblTabs, .tablewrap").forEach(e => e.style.display = "");
+  document.querySelectorAll(".result, .chartwrap, .dh, #stats, #dstats, #tblTabs, .tablewrap").forEach(e => e.style.display = "");
   $("status").textContent = note || "(данные обновляются раз в сутки)";
   showDebug();
   render(); tables();
