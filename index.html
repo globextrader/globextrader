@@ -43,7 +43,12 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .rl::before{content:"";width:28px;height:1px;background:var(--brass)}
 .tag{font-style:normal;color:var(--ink);border:1px solid var(--line);padding:2px 9px;letter-spacing:.14em}
 .csign{font-size:.46em;vertical-align:.78em;margin-right:.1em;opacity:.8}
-#total{font:400 clamp(52px,7.4vw,100px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:20px 0 26px}
+.numrow{display:flex;align-items:flex-end;flex-wrap:wrap;gap:6px 30px;margin:20px 0 26px}
+#total{font:400 clamp(48px,6.6vw,88px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:0}
+.tk{padding-bottom:8px;border-left:1px solid var(--line);padding-left:26px}
+.tk:empty{display:none}
+.tk span{display:block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-bottom:4px}
+.tk b{font:400 clamp(26px,3vw,38px)/1 Newsreader,Georgia,serif}
 #total small{font-size:.32em;margin-left:.3em}
 .instbox summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:0}
 .instbox summary::-webkit-details-marker{display:none}
@@ -83,7 +88,7 @@ h2{font:400 20px Newsreader,Georgia,serif;margin:40px 0 12px}
 .grid dt{color:var(--mute);font-size:13px}
 .grid dd{margin:2px 0 0;font:400 26px Newsreader,Georgia,serif}
 .grid small,td small{font:400 13px "IBM Plex Sans",sans-serif;color:var(--mute);margin-left:6px}
-.tablewrap{max-height:320px;overflow:auto;border:1px solid var(--line)}
+.tablewrap{max-height:380px;overflow:auto;border:1px solid var(--line)}
 table{border-collapse:collapse;width:100%}
 th,td{padding:8px 16px;text-align:right;border-bottom:1px solid var(--line)}
 th:first-child,td:first-child{text-align:left}
@@ -138,13 +143,18 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
   </div>
   <div class="result">
     <div class="rl"><span>Результат</span><i class="tag">ES</i></div>
-    <div class="num" id="total">—</div>
+    <div class="numrow"><div class="num" id="total">—</div><div class="tk" id="tk"></div></div>
     <div class="rgrid" id="cap"></div>
   </div>
 </section>
 
 
 
+<h2 class="dh">Общая статистика</h2>
+<div class="tabs" id="sTabs"></div>
+<dl class="grid" id="stats"></dl>
+
+<h2 class="dh">Диаграмма</h2>
 <section class="chartwrap" aria-label="График результатов">
   <div class="tabs" id="tabs"></div>
   <div class="tabs" id="mtabs"></div>
@@ -156,10 +166,7 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
 <div class="status" id="status"></div>
 <pre class="status" id="debug" style="white-space:pre-wrap;display:none"></pre>
 
-<h2 class="dh">Статистика</h2>
-<dl class="grid" id="stats"></dl>
-
-<h2 class="dh">Результаты по периодам</h2>
+<h2 class="dh">Таблица по периодам</h2>
 <div class="tabs" id="tblTabs"></div>
 <div class="tablewrap"><table class="num"><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
 
@@ -481,9 +488,10 @@ function tradeItems() {
   if (has.ticks) out.push(["Результат в тиках", tickS(sum("ticks")), cls(sum("ticks"))]);
   return out;
 }
+let statView = "day";
 function stats(P) {
   const td = has.trades ? days.filter(d => d.trades > 0) : days;   // праздники и дни без сделок в статистику не входят
-  const u = UNITS[view], v = (view === "day" && has.trades ? P.filter(p => p.trades > 0) : P).map(p => p.pnl), dv = td.map(d => d.pnl), n = dv.length;
+  const u = UNITS[statView], v = (statView === "day" && has.trades ? P.filter(p => p.trades > 0) : P).map(p => p.pnl), dv = td.map(d => d.pnl), n = dv.length;
   const total = dv.reduce((a, b) => a + b, 0);
   let c = 0, peak = 0, mdd = 0;
   for (const x of dv) { c += x; peak = Math.max(peak, c); mdd = Math.min(mdd, c - peak); }
@@ -507,6 +515,9 @@ function stats(P) {
   ];
   $("stats").innerHTML = items.map(([a, b, c2]) => `<div><dt>${a}</dt><dd class="num ${c2}">${b}</dd></div>`).join("");
   $("total").innerHTML = `<span class="${cls(total)}"><span class="csign">${total >= 0 ? "+" : "−"}$</span>${Math.abs(Math.round(total)).toLocaleString("en-US")}</span>` + (cap ? `<small class="${cls(total)}">${pctS(total)}</small>` : "");
+  const tk = days.reduce((a, d) => a + (d.ticks || 0), 0);   // общее число тиков рядом с итоговой суммой
+  $("tk").innerHTML = has.ticks ? `<span>Total ticks</span><b class="${cls(tk)}">${tickS(tk)}</b>` : "";
+  $("sTabs").innerHTML = Object.entries(UNITS).map(([k, x]) => `<button data-v="${k}" aria-pressed="${k === statView}">${x.tab}</button>`).join("");
   $("period").textContent = `${fmtDate(days[0].t)} – ${fmtDate(days[days.length - 1].t)}`;
 }
 let tblView = "day";
@@ -516,10 +527,11 @@ function tables() {
   const cols = [[u.col, null], ["Trades", "trades"], ["Win", "win"], ["Loss", "loss"], ["Win rate", "wr"], ["Total ticks", "ticks"]].filter(c => !c[1] || (c[1] === "wr" ? has.win && has.trades : has[c[1]]));
   $("thead").innerHTML = `<tr>${cols.map(c => `<th>${c[0]}</th>`).join("")}<th>P&L, $</th><th>Cum. P&L, $</th>${cap ? "<th>%</th>" : ""}</tr>`;
   let cc = 0; const all = periods(tblView).map(p => ({ ...p, cum: (cc += p.pnl) }));
-  const rows = all.reverse().slice(0, tblView === "day" ? 60 : 999);
+  const rows = all.reverse();
   $("tbody").innerHTML = rows.map(p => "<tr>" + cols.map(c => !c[1] ? `<td>${p.label}</td>` : c[1] === "ticks" ? `<td class="${cls(p.ticks)}">${tickS(p.ticks)}</td>` : c[1] === "wr" ? `<td>${p.trades ? Math.round(p.win / p.trades * 100) + "%" : "—"}</td>` : `<td>${p[c[1]]}</td>`).join("") +
     `<td class="${cls(p.pnl)}">${money(p.pnl)}</td><td>${money(p.cum)}</td>${cap ? `<td class="${cls(p.pnl)}">${pctS(p.pnl)}</td>` : ""}</tr>`).join("");
 }
+$("sTabs").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { statView = b.dataset.v; stats(periods(statView)); } });
 $("tblTabs").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { tblView = b.dataset.v; tables(); } });
 let metric = "cum";
 const METRICS = { cum: "Cumulative P&L", pnl: "P&L", ticks: "Total ticks", trades: "Trades", wl: "Win / Loss", wr: "Win rate" };
@@ -539,7 +551,7 @@ function render() {
   if (metric === "trades") barChart(P, { legend: "trades", hv: p => p.trades, stack: p => [[p.trades, BRASS]], label: p => p.trades, tip: i => `${P[i].label}: <b>${P[i].trades}</b> сделок<small>${P[i].win} win · ${P[i].loss} loss</small>` });
   if (metric === "wl") barChart(P, { stack: p => [[p.win, GAIN], [-p.loss, LOSS]], label: p => [p.win, p.loss], yFmt: v => Math.abs(v), legend: "Win ↑ · Loss ↓", tip: i => `${P[i].label}: <b class="pos">${P[i].win}</b> win · <b class="neg">${P[i].loss}</b> loss<small>всего ${P[i].trades}</small>` });
   if (metric === "wr") barChart(P, { stack: p => [[wrOf(p), BRASS]], label: p => Math.round(wrOf(p)), hv: wrOf, range: [0, 100], yFmt: v => v, legend: "%", tip: i => `${P[i].label}: <b>${wrOf(P[i]).toFixed(0)}%</b><small>${P[i].win} из ${P[i].trades} сделок</small>` });
-  stats(P);
+  stats(periods(statView));
   $("tabs").innerHTML = Object.entries(UNITS).map(([k, u]) => `<button data-v="${k}" aria-pressed="${k === view}">${u.tab}</button>`).join("");
   $("mtabs").innerHTML = Object.entries(METRICS).filter(([k]) => avail(k)).map(([k, l]) => `<button data-m="${k}" aria-pressed="${k === metric}">${l}</button>`).join("");
 }
@@ -579,12 +591,12 @@ async function load() {
   if (days.length < 2) {
     if (CONFIG.sheetCsvUrl) {   // реальный сайт: демо-цифры не показываем никогда
       $("status").textContent = note || ("Не удалось прочитать данные из таблицы" + (dbg && dbg.problem ? ": " + dbg.problem : "") + ". Откройте страницу с ?debug для диагностики.");
-      document.querySelectorAll(".result, .chartwrap, .dh, #stats, #tblTabs, .tablewrap").forEach(e => e.style.display = "none");
+      document.querySelectorAll(".result, .chartwrap, .dh, #sTabs, #stats, #tblTabs, .tablewrap").forEach(e => e.style.display = "none");
       showDebug(); setTimeout(load, 10 * 60000); return;
     }
     days = demoData(); note = note || "Демо-данные.";
   }
-  document.querySelectorAll(".result, .chartwrap, .dh, #stats, #tblTabs, .tablewrap").forEach(e => e.style.display = "");
+  document.querySelectorAll(".result, .chartwrap, .dh, #sTabs, #stats, #tblTabs, .tablewrap").forEach(e => e.style.display = "");
   $("status").textContent = note || "(данные обновляются раз в сутки)";
   showDebug();
   render(); tables();
