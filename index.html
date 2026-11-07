@@ -36,8 +36,16 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .pills li{border:1px solid var(--line);padding:6px 12px;font-size:12.5px;color:var(--mute)}
 .pills b{color:var(--ink);font-weight:500;margin-right:8px;letter-spacing:.12em;text-transform:uppercase;font-size:11px}
 .result{border-left:1px solid var(--line);padding-left:40px}
-.rl{color:var(--mute);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
-#total{font:400 clamp(52px,8vw,104px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:10px 0 12px}
+.rl{display:flex;align-items:center;gap:14px;color:var(--mute);font-size:12px;letter-spacing:.22em;text-transform:uppercase}
+.rl::before{content:"";width:28px;height:1px;background:var(--brass)}
+.tag{font-style:normal;color:var(--ink);border:1px solid var(--line);padding:2px 9px;letter-spacing:.14em}
+.cur{font-size:.46em;vertical-align:.78em;margin-right:.1em;opacity:.8}
+.rmeta{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;border-top:1px solid var(--line);max-width:540px}
+.rmeta div{padding:12px 22px 0 0}
+.rmeta div+div{padding-left:20px;border-left:1px solid var(--line)}
+.rmeta span{display:block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-bottom:4px}
+.rmeta b{font-weight:400;font-size:14px;color:var(--ink);white-space:nowrap}
+#total{font:400 clamp(52px,8vw,104px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:22px 0 26px}
 #total small{font-size:.32em;margin-left:.3em}
 .cap{color:var(--mute);font-size:13px;max-width:38ch}
 .intro{position:relative}
@@ -96,6 +104,10 @@ html{-webkit-text-size-adjust:100%}
   .groups{grid-template-columns:1fr}
 }
 @media (max-width:640px){
+  .rmeta{grid-template-columns:1fr 1fr;max-width:none}
+  .rmeta div:first-child{grid-column:1/-1;padding-bottom:10px}
+  .rmeta div:nth-child(2){padding-left:0;border-left:0;border-top:1px solid var(--line);padding-top:10px}
+  .rmeta div:nth-child(3){border-top:1px solid var(--line);padding-top:10px}
   .duo{grid-template-columns:1fr}
   .duo div+div{padding:14px 0 0;border-left:0;border-top:1px solid var(--line);margin-top:14px}
   .duo div{padding-right:0}
@@ -137,9 +149,9 @@ footer{margin-top:40px;color:var(--mute);font-size:12px;max-width:80ch}
     </ul>
   </div>
   <div class="result">
-    <div class="rl">Результат · ES</div>
+    <div class="rl"><span>Результат</span><i class="tag">ES</i></div>
     <div class="num" id="total">—</div>
-    <div class="cap" id="cap"></div>
+    <div class="rmeta" id="cap"></div>
   </div>
 </section>
 
@@ -485,8 +497,8 @@ function stats(P) {
     ...extra
   ];
   $("stats").innerHTML = items.map(([a, b, c2]) => `<div><dt>${a}</dt><dd class="num ${c2}">${b}</dd></div>`).join("");
-  $("total").innerHTML = `<span class="${cls(total)}">${money(total)}</span>` + (cap ? `<small class="${cls(total)}">${pctS(total)}</small>` : "");
-  $("cap").textContent = `Накопленный результат по ES за период с ${fmtDate(days[0].t)} по ${fmtDate(days[days.length - 1].t)}. Стоимость тика $12,50; комиссии учтены.`;
+  $("total").innerHTML = `<span class="${cls(total)}"><span class="cur">${total >= 0 ? "+" : "−"}$</span>${Math.abs(Math.round(total)).toLocaleString("en-US")}</span>` + (cap ? `<small class="${cls(total)}">${pctS(total)}</small>` : "");
+  $("cap").innerHTML = `<div><span>Период</span><b>${fmtDate(days[0].t)} – ${fmtDate(days[days.length - 1].t)}</b></div><div><span>Стоимость тика</span><b>$12,50</b></div><div><span>Комиссии</span><b>учтены</b></div>`;
 }
 let tblView = "day";
 function tables() {
