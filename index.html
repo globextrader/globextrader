@@ -43,8 +43,17 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .rl::before{content:"";width:28px;height:1px;background:var(--brass)}
 .tag{font-style:normal;color:var(--ink);border:1px solid var(--line);padding:2px 9px;letter-spacing:.14em}
 .csign{font-size:.46em;vertical-align:.78em;margin-right:.1em;opacity:.8}
-.numrow{display:flex;align-items:flex-end;flex-wrap:wrap;gap:6px 30px;margin:20px 0 26px}
+.numrow{display:flex;align-items:flex-end;flex-wrap:wrap;gap:6px 30px;margin:20px 0 12px}
 #total{font:400 clamp(48px,6.6vw,88px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:0}
+.period{color:var(--mute);font-size:13px;margin:0 0 26px}
+.period span{font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;margin-right:12px}
+.period b{font-weight:400;color:var(--ink)}
+.rgrid > div.wide{grid-column:span 2}
+.terms{display:flex;gap:10px 32px;flex-wrap:wrap}
+.terms p{margin:0}
+.terms em{display:block;font-style:normal;color:var(--mute);font-size:12px;margin-bottom:2px}
+.terms b{font-weight:400;font-size:14px;line-height:1.4;color:var(--ink)}
+.tip .tkp{color:var(--mute);margin-left:4px}
 .tk{padding-bottom:8px;border-left:1px solid var(--line);padding-left:26px}
 .tk:empty{display:none}
 .tk span{display:block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-bottom:4px}
@@ -111,6 +120,7 @@ html{-webkit-text-size-adjust:100%}
   .rgrid > div:nth-child(n){padding:12px 12px 10px 0;border-left:0;border-top:1px solid var(--line)}
   .rgrid > div:nth-child(2n){padding-left:14px;border-left:1px solid var(--line)}
   .rgrid > div:nth-child(-n+2){border-top:0}
+  .rgrid > div.wide:nth-child(n){grid-column:1/-1;padding-left:0;border-left:0}
   body{padding:0 14px 36px}
   header{padding:18px 0}
   .brand span{display:block;margin:2px 0 0}
@@ -147,6 +157,7 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
   <div class="result">
     <div class="rl"><span>Результат</span><i class="tag">ES</i></div>
     <div class="numrow"><div class="num" id="total">—</div><div class="tk" id="tk"></div></div>
+    <div class="period" id="periodLine"></div>
     <div class="rgrid" id="cap"></div>
   </div>
 </section>
@@ -202,6 +213,8 @@ const CONFIG = {
       ["Системные правила", "Торговый план, лимиты риска и параметры сделки определены заранее."],
       ["Дискреционное исполнение", "Решение о входе в сделку принимает трейдер с учётом текущей рыночной ситуации."]
     ],
+    showInstruments: false,   // true — вернуть выпадающий список «Инструмент» с фьючерсами и опционами
+    terms: [["Стоп-лосс", "20 тиков · $250"], ["Тейк-профит", "10 тиков · $125"]],
     specs: [["Торговое окно", "09:30–11:00 ET, Нью-Йорк"], ["Объём", "1 контракт, без реинвестирования"], ["Стоимость тика", "$12,50"], ["Комиссия", "$4 за сделку, учтена"]],
     // href: ссылка на страницу со статистикой инструмента (когда появится); live: true — результаты уже на этой странице
     groups: [
@@ -412,8 +425,9 @@ function lineChart(P, vals, o) {
       `<path d="M${x(0)},${dy(0)} L${dd.map((v, i) => `${x(i).toFixed(1)},${dy(v).toFixed(1)}`).join(" L")} L${x(P.length - 1)},${dy(0)}Z" fill="#d9806b" opacity=".35"/>` +
       `<text x="${W - pad.r}" y="14" text-anchor="end" fill="#8da0b0" font-size="13">Drawdown, $</text>` +
       overlayFor("d", 0, DH, DH);
+    let pk2 = 0; const ddT = o.cumT ? o.cumT.map(v => (pk2 = Math.max(pk2, v), v - pk2)) : null;   // просадка в тиках — по накопленным тикам
     ddSpec = { p: "d", svg: "dd", tip: "tip2", mark: i => ({ y: dy(dd[i]), label: fmtN(dd[i]) }),
-      text: i => `${P[i].label}: <b class="${dd[i] < 0 ? "neg" : ""}">${dd[i] < 0 ? money(dd[i]) : "$0"}</b><small>Drawdown from peak</small>` };
+      text: i => `${P[i].label}: <b class="${dd[i] < 0 ? "neg" : ""}">${dd[i] < 0 ? money(dd[i]) : "$0"}</b>${ddT ? ` <span class="tkp">(${ddT[i] < 0 ? tickS(ddT[i]) : "0"} ticks)</span>` : ""}<small>Drawdown from peak</small>` };
   } else $("dd").style.display = "none";
   hover(P.length, x, [{ p: "m", svg: "chart", tip: "tip", text: o.tip, mark: i => ({ y: y(vals[i]), label: fmtN(vals[i]) }) }].concat(ddSpec ? [ddSpec] : []));
 }
@@ -526,7 +540,7 @@ function stats(P) {
   const tk = days.reduce((a, d) => a + (d.ticks || 0), 0);   // общее число тиков рядом с итоговой суммой
   $("tk").innerHTML = has.ticks ? `<span>Total ticks</span><b class="${cls(tk)}">${tickS(tk)}</b>` : "";
   $("sTabs").innerHTML = Object.entries(UNITS).map(([k, x]) => `<button data-v="${k}" aria-pressed="${k === statView}">${x.tab}</button>`).join("");
-  $("period").textContent = `${fmtDate(days[0].t)} – ${fmtDate(days[days.length - 1].t)}`;
+  $("periodLine").innerHTML = `<span>За период</span><b>${fmtDate(days[0].t)} – ${fmtDate(days[days.length - 1].t)}</b>`;
 }
 let tblView = "day";
 function tables() {
@@ -552,9 +566,11 @@ function render() {
   if (!avail(metric)) metric = "cum";
   const P = periods(view);
   let c = 0; const cum = P.map(p => (c += p.pnl));
+  let ct = 0; const cumT = P.map(p => (ct += p.ticks || 0));
+  const tkp = v => has.ticks ? ` <span class="tkp">(${v ? tickS(v) : "0"} ticks)</span>` : "";
   const det = p => `<small>${p.trades ? `${p.trades} сделок · ${p.win} win · ${p.loss} loss` : ""}</small>`;
-  if (metric === "cum") lineChart(P, cum, { dd: view === "day", yFmt: axisNum, unit: "$", tip: i => `${P[i].label}: <b class="${cls(cum[i])}">${money(cum[i])}</b><small>за период ${money(P[i].pnl)}</small>` });
-  if (metric === "pnl") barChart(P, { stack: p => [[p.pnl, p.pnl >= 0 ? GAIN : LOSS]], label: p => Math.round(p.pnl), hv: p => p.pnl, yFmt: axisNum, legend: "$", tip: i => `${P[i].label}: <b class="${cls(P[i].pnl)}">${money(P[i].pnl)}</b>${det(P[i])}` });
+  if (metric === "cum") lineChart(P, cum, { dd: view === "day", yFmt: axisNum, unit: "$", cumT: has.ticks ? cumT : null, tip: i => `${P[i].label}: <b class="${cls(cum[i])}">${money(cum[i])}</b>${tkp(cumT[i])}<small>за период ${money(P[i].pnl)}${tkp(P[i].ticks)}</small>` });
+  if (metric === "pnl") barChart(P, { stack: p => [[p.pnl, p.pnl >= 0 ? GAIN : LOSS]], label: p => Math.round(p.pnl), hv: p => p.pnl, yFmt: axisNum, legend: "$", tip: i => `${P[i].label}: <b class="${cls(P[i].pnl)}">${money(P[i].pnl)}</b>${tkp(P[i].ticks)}${det(P[i])}` });
   if (metric === "ticks") barChart(P, { legend: "ticks", hv: p => p.ticks, stack: p => [[p.ticks, p.ticks >= 0 ? GAIN : LOSS]], label: p => Math.round(p.ticks), tip: i => `${P[i].label}: <b class="${cls(P[i].ticks)}">${tickS(P[i].ticks)}</b> тиков${det(P[i])}` });
   if (metric === "trades") barChart(P, { legend: "trades", hv: p => p.trades, stack: p => [[p.trades, BRASS]], label: p => p.trades, tip: i => `${P[i].label}: <b>${P[i].trades}</b> сделок<small>${P[i].win} win · ${P[i].loss} loss</small>` });
   if (metric === "wl") barChart(P, { stack: p => [[p.win, GAIN], [-p.loss, LOSS]], label: p => [p.win, p.loss], yFmt: v => Math.abs(v), legend: "Win ↑ · Loss ↓", tip: i => `${P[i].label}: <b class="pos">${P[i].win}</b> win · <b class="neg">${P[i].loss}</b> loss<small>всего ${P[i].trades}</small>` });
@@ -617,8 +633,11 @@ function renderIntro() {
   $("eyebrow").textContent = S.eyebrow; $("name").textContent = S.name; $("apTitle").textContent = S.approachTitle;
   $("statement").innerHTML = `<span class="s1">${S.ledeMain}.</span> <span class="s2">${S.ledeSub[0]} ${S.ledeSub[1]}.</span>`;
   $("duo").innerHTML = S.approach.map((a, k) => `<div><b><i>0${k + 1}</i>${a[0]}</b><span>${a[1]}</span></div>`).join("");
-  const cells = [["Период", `<b id="period">—</b>`]].concat(S.specs.map(p => [p[0], `<b>${p[1]}</b>`]), [["Инструмент", `<details class="instbox" id="instbox"><summary><b id="curInst"></b><i class="chev"></i></summary><div class="groups" id="insts"></div></details>`]]);
-  $("cap").innerHTML = cells.map(c => `<div><span>${c[0]}</span>${c[1]}</div>`).join("");
+  const cells = S.specs.map(p => [p[0], `<b>${p[1]}</b>`]);
+  cells.push(["Условия сделки", `<div class="terms">${S.terms.map(t => `<p><em>${t[0]}</em><b>${t[1]}</b></p>`).join("")}</div>`, "wide"]);
+  if (S.showInstruments) cells.push(["Инструмент", `<details class="instbox" id="instbox"><summary><b id="curInst"></b><i class="chev"></i></summary><div class="groups" id="insts"></div></details>`]);
+  $("cap").innerHTML = cells.map(c => `<div${c[2] ? ` class="${c[2]}"` : ""}><span>${c[0]}</span>${c[1]}</div>`).join("");
+  if (!S.showInstruments) return;
   $("curInst").textContent = (S.groups.flatMap(g => g.items).find(i => i.live) || {}).sym || "";
   const row = (k, v) => `<div><dt>${k}</dt><dd>${v || "—"}</dd></div>`;
   const card = (i, lbl) => {
@@ -628,9 +647,9 @@ function renderIntro() {
   $("insts").innerHTML = S.groups.map(g => `<div class="grp"><h3>${g.title}</h3><p class="gnote">${g.note}</p><div class="icards">${g.items.map(i => card(i, g.tickLabel || "Тик")).join("")}</div></div>`).join("");
 }
 renderIntro();
-document.addEventListener("click", e => { const b = $("instbox"); if (b.open && !b.contains(e.target)) b.open = false; });
+document.addEventListener("click", e => { const b = $("instbox"); if (b && b.open && !b.contains(e.target)) b.open = false; });
 document.addEventListener("pointerdown", e => { if (!/_hit$/.test(e.target.id || "")) hideHover(); });   // касание вне графика убирает подсказки
-document.addEventListener("keydown", e => { if (e.key === "Escape") $("instbox").open = false; });
+document.addEventListener("keydown", e => { const b = $("instbox"); if (e.key === "Escape" && b) b.open = false; });
 $("disc").textContent = CONFIG.disclaimer;
 load();
 </script>
