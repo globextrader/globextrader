@@ -52,6 +52,7 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .cgrid > div{padding:6px 14px 4px 0}
 .cgrid > div+div{padding-left:16px;border-left:1px solid var(--line)}
 .cgrid span{display:block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-bottom:5px}
+.nb{white-space:nowrap}
 .cgrid b{font-weight:400;font-size:14px;line-height:1.4;color:var(--ink)}
 .tip .tkp{color:var(--mute);margin-left:4px}
 .tk{padding-bottom:8px;border-left:1px solid var(--line);padding-left:26px}
@@ -214,7 +215,7 @@ const CONFIG = {
     ],
     showInstruments: false,   // true — вернуть выпадающий список «Инструмент» с фьючерсами и опционами
     terms: [["Стоп-лосс", "20 тиков · $250"], ["Тейк-профит", "10 тиков · $125"]],
-    specs: [["Торговое окно", "09:30–11:00 ET, Нью-Йорк"], ["Объём", "1 контракт, без реинвестирования"], ["Стоимость тика", "$12,50"], ["Комиссия", "$4 за сделку, учтена"]],
+    specs: [["Торговое окно", "09:30–11:00 ET, <span class=\"nb\">Нью-Йорк</span>"], ["Объём", "1 контракт, без реинвестирования"], ["Стоимость тика", "$12,50"], ["Комиссия", "$4 за сделку, учтена"]],
     // href: ссылка на страницу со статистикой инструмента (когда появится); live: true — результаты уже на этой странице
     groups: [
       { title: "Фьючерсы", tickLabel: "Тик", note: "CME · торговля 09:30–11:00 ET", items: [
