@@ -19,6 +19,7 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .hero{padding:64px 0 52px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:56px;align-items:stretch}
 .statement{font:400 clamp(26px,3.1vw,40px)/1.18 Newsreader,Georgia,serif;letter-spacing:-.01em;margin:22px 0 0;max-width:19em}
 .statement .s1{color:var(--ink)}
+.statement .s2 b{font-weight:400;color:var(--ink)}
 .statement .s2{display:block;color:var(--mute);margin-top:2px}
 .ap-head{margin-bottom:16px}
 .ap-title{font:400 clamp(24px,2.6vw,32px)/1.1 Newsreader,Georgia,serif;display:flex;align-items:center;gap:16px}
@@ -48,9 +49,9 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .period{color:var(--mute);font-size:13px;margin:0 0 26px}
 .period span{font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;margin-right:12px}
 .period b{font-weight:400;color:var(--ink)}
-.rgrid > div.wide{grid-column:span 2}
-.terms{display:flex;gap:10px 32px;flex-wrap:wrap}
-.terms p{margin:0}
+.terms{display:block}
+.terms p{margin:0 0 6px}
+.terms p:last-child{margin-bottom:0}
 .terms em{display:block;font-style:normal;color:var(--mute);font-size:12px;margin-bottom:2px}
 .terms b{font-weight:400;font-size:14px;line-height:1.4;color:var(--ink)}
 .tip .tkp{color:var(--mute);margin-left:4px}
@@ -120,7 +121,6 @@ html{-webkit-text-size-adjust:100%}
   .rgrid > div:nth-child(n){padding:12px 12px 10px 0;border-left:0;border-top:1px solid var(--line)}
   .rgrid > div:nth-child(2n){padding-left:14px;border-left:1px solid var(--line)}
   .rgrid > div:nth-child(-n+2){border-top:0}
-  .rgrid > div.wide:nth-child(n){grid-column:1/-1;padding-left:0;border-left:0}
   body{padding:0 14px 36px}
   header{padding:18px 0}
   .brand span{display:block;margin:2px 0 0}
@@ -208,7 +208,7 @@ const CONFIG = {
     name: "Scalping Globextrader",
     approachTitle: "Гибридный подход",
     ledeMain: "Внутридневной скальпинг",
-    ledeSub: ["Фьючерсы и опционы 0DTE", "на индексы США"],
+    ledeSub: ["Фьючерс на ES", "(E-mini S&P 500)"],
     approach: [
       ["Системные правила", "Торговый план, лимиты риска и параметры сделки определены заранее."],
       ["Дискреционное исполнение", "Решение о входе в сделку принимает трейдер с учётом текущей рыночной ситуации."]
@@ -231,7 +231,7 @@ const CONFIG = {
       ] }
     ]
   },
-  disclaimer: "Результаты получены в ходе ретроспективного тестирования (бэктеста) на исторических данных и не являются результатами реальной торговли. Такие результаты имеют ограничения: они определены постфактум и могут не отражать влияние проскальзывания, ликвидности, задержек исполнения и иных рыночных условий. Прошлые результаты не гарантируют будущей доходности. Торговля фьючерсами и опционами сопряжена с высоким риском, включая риск потери всех вложенных средств. Материалы носят исключительно информационный характер и не являются индивидуальной инвестиционной рекомендацией, офертой или предложением приобрести какие-либо финансовые инструменты или услуги."
+  disclaimer: "Результаты получены в ходе ретроспективного тестирования (бэктеста) на исторических данных и не являются результатами реальной торговли. Такие результаты имеют ограничения: они определены постфактум и могут не отражать влияние проскальзывания, ликвидности, задержек исполнения и иных рыночных условий. Прошлые результаты не гарантируют будущей доходности. Торговля фьючерсами сопряжена с высоким риском, включая риск потери всех вложенных средств. Материалы носят исключительно информационный характер и не являются индивидуальной инвестиционной рекомендацией, офертой или предложением приобрести какие-либо финансовые инструменты или услуги."
 };
 /* ===================== */
 
@@ -631,12 +631,15 @@ function renderIntro() {
   const S = CONFIG.strategy;
   document.title = S.name + " — результаты";
   $("eyebrow").textContent = S.eyebrow; $("name").textContent = S.name; $("apTitle").textContent = S.approachTitle;
-  $("statement").innerHTML = `<span class="s1">${S.ledeMain}.</span> <span class="s2">${S.ledeSub[0]} ${S.ledeSub[1]}.</span>`;
+  $("statement").innerHTML = `<span class="s1">${S.ledeMain}.</span> <span class="s2"><b>${S.ledeSub[0]}</b> ${S.ledeSub[1]}.</span>`;
   $("duo").innerHTML = S.approach.map((a, k) => `<div><b><i>0${k + 1}</i>${a[0]}</b><span>${a[1]}</span></div>`).join("");
+  const live = S.groups.flatMap(g => g.items).find(i => i.live) || {};
   const cells = S.specs.map(p => [p[0], `<b>${p[1]}</b>`]);
-  cells.push(["Условия сделки", `<div class="terms">${S.terms.map(t => `<p><em>${t[0]}</em><b>${t[1]}</b></p>`).join("")}</div>`, "wide"]);
-  if (S.showInstruments) cells.push(["Инструмент", `<details class="instbox" id="instbox"><summary><b id="curInst"></b><i class="chev"></i></summary><div class="groups" id="insts"></div></details>`]);
-  $("cap").innerHTML = cells.map(c => `<div${c[2] ? ` class="${c[2]}"` : ""}><span>${c[0]}</span>${c[1]}</div>`).join("");
+  cells.push(["Инструмент", S.showInstruments
+    ? `<details class="instbox" id="instbox"><summary><b id="curInst"></b><i class="chev"></i></summary><div class="groups" id="insts"></div></details>`
+    : `<b>${live.sym || ""}${live.name ? ` · ${live.name}` : ""}</b>`]);
+  cells.push(["Условия сделки", `<div class="terms">${S.terms.map(t => `<p><em>${t[0]}</em><b>${t[1]}</b></p>`).join("")}</div>`]);
+  $("cap").innerHTML = cells.map(c => `<div><span>${c[0]}</span>${c[1]}</div>`).join("");
   if (!S.showInstruments) return;
   $("curInst").textContent = (S.groups.flatMap(g => g.items).find(i => i.live) || {}).sym || "";
   const row = (k, v) => `<div><dt>${k}</dt><dd>${v || "—"}</dd></div>`;
