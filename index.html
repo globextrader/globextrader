@@ -17,10 +17,10 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .brand::before{content:"";display:inline-block;width:28px;height:1px;background:var(--brass);vertical-align:middle;margin-right:14px}
 .meta{color:var(--mute);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
 .hero{padding:64px 0 52px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:56px;align-items:stretch}
-.statement{font:400 clamp(26px,3.1vw,40px)/1.18 Newsreader,Georgia,serif;letter-spacing:-.01em;margin:22px 0 0;max-width:19em}
+.statement{font:400 clamp(26px,3.1vw,40px)/1.18 Newsreader,Georgia,serif;letter-spacing:-.01em;margin:22px 0 0}
 .statement .s1{color:var(--ink)}
 .statement .s2 b{font-weight:400;color:var(--ink)}
-.statement .s2{display:block;color:var(--mute);margin-top:2px}
+.statement .s2{display:block;color:var(--mute);margin-top:4px;font-size:clamp(18px,2.3vw,30px);white-space:nowrap}
 .ap-head{margin-bottom:16px}
 .ap-title{font:400 clamp(24px,2.6vw,32px)/1.1 Newsreader,Georgia,serif;display:flex;align-items:center;gap:16px}
 .ap-title::before{content:"";width:34px;height:1px;background:var(--brass)}
@@ -44,16 +44,15 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .rl::before{content:"";width:28px;height:1px;background:var(--brass)}
 .tag{font-style:normal;color:var(--ink);border:1px solid var(--line);padding:2px 9px;letter-spacing:.14em}
 .csign{font-size:.46em;vertical-align:.78em;margin-right:.1em;opacity:.8}
-.numrow{display:flex;align-items:flex-end;flex-wrap:wrap;gap:6px 30px;margin:20px 0 12px}
+.numrow{display:flex;align-items:flex-end;flex-wrap:wrap;gap:6px 30px;margin:20px 0 26px}
 #total{font:400 clamp(48px,6.6vw,88px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:0}
-.period{color:var(--mute);font-size:13px;margin:0 0 26px}
-.period span{font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;margin-right:12px}
-.period b{font-weight:400;color:var(--ink)}
-.terms{display:block}
-.terms p{margin:0 0 6px}
-.terms p:last-child{margin-bottom:0}
-.terms em{display:block;font-style:normal;color:var(--mute);font-size:12px;margin-bottom:2px}
-.terms b{font-weight:400;font-size:14px;line-height:1.4;color:var(--ink)}
+.conds{border-top:1px solid var(--line)}
+.cl{padding:12px 0 4px;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--brass)}
+.cgrid{display:grid;grid-template-columns:1fr 1fr}
+.cgrid > div{padding:6px 14px 4px 0}
+.cgrid > div+div{padding-left:16px;border-left:1px solid var(--line)}
+.cgrid span{display:block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-bottom:5px}
+.cgrid b{font-weight:400;font-size:14px;line-height:1.4;color:var(--ink)}
 .tip .tkp{color:var(--mute);margin-left:4px}
 .tk{padding-bottom:8px;border-left:1px solid var(--line);padding-left:26px}
 .tk:empty{display:none}
@@ -157,8 +156,8 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
   <div class="result">
     <div class="rl"><span>Результат</span><i class="tag">ES</i></div>
     <div class="numrow"><div class="num" id="total">—</div><div class="tk" id="tk"></div></div>
-    <div class="period" id="periodLine"></div>
     <div class="rgrid" id="cap"></div>
+    <div class="conds" id="conds"></div>
   </div>
 </section>
 
@@ -540,7 +539,7 @@ function stats(P) {
   const tk = days.reduce((a, d) => a + (d.ticks || 0), 0);   // общее число тиков рядом с итоговой суммой
   $("tk").innerHTML = has.ticks ? `<span>Total ticks</span><b class="${cls(tk)}">${tickS(tk)}</b>` : "";
   $("sTabs").innerHTML = Object.entries(UNITS).map(([k, x]) => `<button data-v="${k}" aria-pressed="${k === statView}">${x.tab}</button>`).join("");
-  $("periodLine").innerHTML = `<span>За период</span><b>${fmtDate(days[0].t)} – ${fmtDate(days[days.length - 1].t)}</b>`;
+  $("period").textContent = `${fmtDate(days[0].t)} – ${fmtDate(days[days.length - 1].t)}`;
 }
 let tblView = "day";
 function tables() {
@@ -638,8 +637,9 @@ function renderIntro() {
   cells.push(["Инструмент", S.showInstruments
     ? `<details class="instbox" id="instbox"><summary><b id="curInst"></b><i class="chev"></i></summary><div class="groups" id="insts"></div></details>`
     : `<b>${live.sym || ""}${live.name ? ` · ${live.name}` : ""}</b>`]);
-  cells.push(["Условия сделки", `<div class="terms">${S.terms.map(t => `<p><em>${t[0]}</em><b>${t[1]}</b></p>`).join("")}</div>`]);
+  cells.push(["Период", `<b id="period">—</b>`]);
   $("cap").innerHTML = cells.map(c => `<div><span>${c[0]}</span>${c[1]}</div>`).join("");
+  $("conds").innerHTML = `<div class="cl">Условия сделки</div><div class="cgrid">${S.terms.map(t => `<div><span>${t[0]}</span><b>${t[1]}</b></div>`).join("")}</div>`;
   if (!S.showInstruments) return;
   $("curInst").textContent = (S.groups.flatMap(g => g.items).find(i => i.live) || {}).sym || "";
   const row = (k, v) => `<div><dt>${k}</dt><dd>${v || "—"}</dd></div>`;
