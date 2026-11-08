@@ -633,11 +633,10 @@ function renderIntro() {
   $("statement").innerHTML = `<span class="s1">${S.ledeMain}.</span> <span class="s2"><b>${S.ledeSub[0]}</b> ${S.ledeSub[1]}.</span>`;
   $("duo").innerHTML = S.approach.map((a, k) => `<div><b><i>0${k + 1}</i>${a[0]}</b><span>${a[1]}</span></div>`).join("");
   const live = S.groups.flatMap(g => g.items).find(i => i.live) || {};
-  const cells = S.specs.map(p => [p[0], `<b>${p[1]}</b>`]);
+  const cells = [["Период", `<b id="period">—</b>`]].concat(S.specs.map(p => [p[0], `<b>${p[1]}</b>`]));
   cells.push(["Инструмент", S.showInstruments
     ? `<details class="instbox" id="instbox"><summary><b id="curInst"></b><i class="chev"></i></summary><div class="groups" id="insts"></div></details>`
     : `<b>${live.sym || ""}${live.name ? ` · ${live.name}` : ""}</b>`]);
-  cells.push(["Период", `<b id="period">—</b>`]);
   $("cap").innerHTML = cells.map(c => `<div><span>${c[0]}</span>${c[1]}</div>`).join("");
   $("conds").innerHTML = `<div class="cl">Условия сделки</div><div class="cgrid">${S.terms.map(t => `<div><span>${t[0]}</span><b>${t[1]}</b></div>`).join("")}</div>`;
   if (!S.showInstruments) return;
