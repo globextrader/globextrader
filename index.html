@@ -380,7 +380,7 @@ const pad = { l: 60, r: 12, t: 26, b: 36 };
 function setSize() {   // размер графика подгоняется под ширину экрана, чтобы подписи не уменьшались на телефоне
   const w = Math.round($("chart").getBoundingClientRect().width) || 1000;
   W = Math.max(w, 280); H = W < 600 ? 300 : 380; pad.l = W < 600 ? 46 : 60;
-  $("chart").setAttribute("viewBox", `0 0 ${W} ${H}`); $("dd").setAttribute("viewBox", `0 0 ${W} 90`);
+  $("chart").setAttribute("viewBox", `0 0 ${W} ${H}`); $("dd").setAttribute("viewBox", `0 0 ${W} 112`);
 }
 
 function frame(minV, maxV, fmt) {
@@ -423,7 +423,7 @@ function lineChart(P, vals, o) {
     $("dd").innerHTML = `<text x="${pad.l - 8}" y="14" text-anchor="end" fill="#8da0b0" font-size="12">0</text>` +
       `<text x="${pad.l - 8}" y="${DH - 6}" text-anchor="end" fill="#8da0b0" font-size="12">${axisNum(Math.round(dmin))}</text>` +
       `<path d="M${x(0)},${dy(0)} L${dd.map((v, i) => `${x(i).toFixed(1)},${dy(v).toFixed(1)}`).join(" L")} L${x(P.length - 1)},${dy(0)}Z" fill="#d9806b" opacity=".35"/>` +
-      `<text x="${W - pad.r}" y="14" text-anchor="end" fill="#8da0b0" font-size="13">Drawdown, $</text>` +
+      `<text x="${W - pad.r}" y="${DH + 17}" text-anchor="end" fill="#8da0b0" font-size="13">Drawdown, $</text>` +
       overlayFor("d", 0, DH, DH);
     let pk2 = 0; const ddT = o.cumT ? o.cumT.map(v => (pk2 = Math.max(pk2, v), v - pk2)) : null;   // просадка в тиках — по накопленным тикам
     ddSpec = { p: "d", svg: "dd", tip: "tip2", mark: i => ({ y: dy(dd[i]), label: fmtN(dd[i]) }),
