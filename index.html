@@ -95,7 +95,7 @@ svg{display:block;width:100%;height:auto;overflow:visible}
 .subhead{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:26px 0 10px}
 .subhead span{font:500 11px "IBM Plex Sans",sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--brass)}
 .subhead .tabs{margin:0}
-.snote{color:var(--mute);font-size:12px;font-style:normal}
+.snote{color:var(--mute);font-size:12px;font-style:italic}
 h2{font:400 20px Newsreader,Georgia,serif;margin:40px 0 12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);margin:0}
 .grid div{padding:16px 18px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
@@ -516,7 +516,7 @@ function stats(P) {
   let PP = statView === "day" && has.trades ? P.filter(p => p.trades > 0) : P;
   const full = PP.filter(done), cut = full.length > 0 && full.length < PP.length;   // текущий неполный период в худший/лучший не попадает
   if (cut) PP = full;
-  $("snote").textContent = cut ? "учитываются только завершённые периоды" : "";
+  $("snote").textContent = cut ? "(учитываются только завершённые периоды)" : "";
   const u = UNITS[statView], v = PP.map(p => p.pnl), dv = td.map(d => d.pnl), n = dv.length;
   const total = dv.reduce((a, b) => a + b, 0);
   let c = 0, peak = 0, mdd = 0;
