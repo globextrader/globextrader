@@ -95,6 +95,7 @@ svg{display:block;width:100%;height:auto;overflow:visible}
 .subhead{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:26px 0 10px}
 .subhead span{font:500 11px "IBM Plex Sans",sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--brass)}
 .subhead .tabs{margin:0}
+.snote{color:var(--mute);font-size:12px;font-style:normal}
 h2{font:400 20px Newsreader,Georgia,serif;margin:40px 0 12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);margin:0}
 .grid div{padding:16px 18px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
@@ -166,7 +167,7 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
 
 <h2 class="dh">Общая статистика</h2>
 <dl class="grid" id="stats"></dl>
-<div class="subhead dh"><span>По периодам</span><div class="tabs" id="sTabs"></div></div>
+<div class="subhead dh"><span>По периодам</span><div class="tabs" id="sTabs"></div><em class="snote" id="snote"></em></div>
 <dl class="grid" id="dstats"></dl>
 
 <h2 class="dh">Детальная статистика</h2>
@@ -509,7 +510,14 @@ function tradeItems() {
 let statView = "day";
 function stats(P) {
   const td = has.trades ? days.filter(d => d.trades > 0) : days;   // праздники и дни без сделок в статистику не входят
-  const u = UNITS[statView], v = (statView === "day" && has.trades ? P.filter(p => p.trades > 0) : P).map(p => p.pnl), dv = td.map(d => d.pnl), n = dv.length;
+  const now = new Date(), todayS = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  const done = p => statView === "week" ? p.key + 5 * 864e5 <= todayS   // неделя закончена с субботы
+    : statView === "month" ? Date.UTC(new Date(p.key).getUTCFullYear(), new Date(p.key).getUTCMonth() + 1, 1) <= todayS : true;
+  let PP = statView === "day" && has.trades ? P.filter(p => p.trades > 0) : P;
+  const full = PP.filter(done), cut = full.length > 0 && full.length < PP.length;   // текущий неполный период в худший/лучший не попадает
+  if (cut) PP = full;
+  $("snote").textContent = cut ? "учитываются только завершённые периоды" : "";
+  const u = UNITS[statView], v = PP.map(p => p.pnl), dv = td.map(d => d.pnl), n = dv.length;
   const total = dv.reduce((a, b) => a + b, 0);
   let c = 0, peak = 0, mdd = 0;
   for (const x of dv) { c += x; peak = Math.max(peak, c); mdd = Math.min(mdd, c - peak); }
