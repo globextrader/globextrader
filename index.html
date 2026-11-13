@@ -18,14 +18,10 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .meta{color:var(--mute);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
 .hero{padding:64px 0 52px}
 .hero-head{margin-bottom:30px}
-.hero-cards{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:24px;align-items:stretch}
-.ptype{font:400 clamp(32px,4vw,56px)/1.05 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:22px 0 28px}
-.plan .conds{margin-top:auto}
-.plan .cgrid b{color:var(--mute);line-height:1.55}
 .eyebrow{color:var(--brass);font-size:12px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:18px}
 .name{font:400 clamp(40px,6.2vw,84px)/1 Newsreader,Georgia,serif;margin:0;letter-spacing:-.02em}
-.result,.plan{position:relative;background:var(--panel);border:1px solid var(--line);padding:30px 32px 22px;display:flex;flex-direction:column;justify-content:space-between}
-.result::before,.plan::before{content:"";position:absolute;left:-1px;top:-1px;width:64px;height:2px;background:var(--brass)}
+.result{position:relative;background:var(--panel);border:1px solid var(--line);padding:30px 32px 22px}
+.result::before{content:"";position:absolute;left:-1px;top:-1px;width:64px;height:2px;background:var(--brass)}
 .rgrid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
 .rgrid > div{padding:14px 14px 12px 0}
 .rgrid > div:nth-child(3n+2),.rgrid > div:nth-child(3n){padding-left:16px;border-left:1px solid var(--line)}
@@ -45,6 +41,14 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .cgrid > div+div{padding-left:16px;border-left:1px solid var(--line)}
 .cgrid span{display:block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-bottom:5px}
 .nb{white-space:nowrap}
+.cgrid.one{grid-template-columns:1fr}
+.cgrid .ttype{font:400 clamp(24px,3vw,34px)/1.1 Newsreader,Georgia,serif;letter-spacing:-.01em;padding:4px 0 6px}
+.cgrid.stack b{color:var(--mute);line-height:1.55}
+@media (min-width:901px){
+  .rgrid{grid-template-columns:repeat(6,1fr)}
+  .rgrid > div:nth-child(n){padding:14px 12px 12px 16px;border-left:1px solid var(--line);border-top:0}
+  .rgrid > div:nth-child(1){padding-left:0;border-left:0}
+}
 .cgrid b{font-weight:400;font-size:14px;line-height:1.4;color:var(--ink)}
 .tip .tkp{color:var(--mute);margin-left:4px}
 .tk{padding-bottom:8px;border-left:1px solid var(--line);padding-left:26px}
@@ -105,13 +109,10 @@ td:first-child{position:sticky;left:0;background:var(--bg)}
 html{-webkit-text-size-adjust:100%}
 @media (max-width:860px){
   .hero{padding:40px 0 32px}
-  .hero-cards{grid-template-columns:1fr}
-  .result,.plan{padding:24px 20px 16px}
+  .result{padding:24px 20px 16px}
   .groups{grid-template-columns:1fr}
 }
 @media (max-width:640px){
-  .plan .cgrid{grid-template-columns:1fr}
-  .plan .cgrid > div+div{padding:10px 0 4px;border-left:0;border-top:1px solid var(--line);margin-top:8px}
   .rgrid{grid-template-columns:1fr 1fr}
   .rgrid > div:nth-child(n){padding:12px 12px 10px 0;border-left:0;border-top:1px solid var(--line)}
   .rgrid > div:nth-child(2n){padding-left:14px;border-left:1px solid var(--line)}
@@ -144,18 +145,13 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
     <div class="eyebrow" id="eyebrow"></div>
     <h1 class="name" id="name"></h1>
   </div>
-  <div class="hero-cards">
-  <div class="plan">
-    <div class="rl"><span id="typeLabel"></span></div>
-    <div class="ptype" id="ptype"></div>
-    <div class="conds" id="approach"></div>
-  </div>
   <div class="result">
     <div class="rl"><span>Результат</span><i class="tag">ES</i></div>
     <div class="numrow"><div class="num" id="total">—</div><div class="tk" id="tk"></div></div>
     <div class="rgrid" id="cap"></div>
     <div class="conds" id="conds"></div>
-  </div>
+    <div class="conds" id="ttype"></div>
+    <div class="conds" id="approach"></div>
   </div>
 </section>
 
@@ -635,8 +631,8 @@ function renderIntro() {
   const S = CONFIG.strategy;
   document.title = S.name + " — результаты";
   $("eyebrow").textContent = S.eyebrow; $("name").textContent = S.name;
-  $("typeLabel").textContent = S.typeLabel; $("ptype").textContent = S.ledeMain;
-  $("approach").innerHTML = `<div class="cl">${S.approachTitle}</div><div class="cgrid">${S.approach.map(a => `<div><span>${a[0]}</span><b>${a[1]}</b></div>`).join("")}</div>`;
+  $("ttype").innerHTML = `<div class="cl">${S.typeLabel}</div><div class="cgrid one"><div><b class="ttype">${S.ledeMain}</b></div></div>`;
+  $("approach").innerHTML = `<div class="cl">${S.approachTitle}</div><div class="cgrid stack2">${S.approach.map(a => `<div><span>${a[0]}</span><b>${a[1]}</b></div>`).join("")}</div>`.replace("stack2", "stack");
   const live = S.groups.flatMap(g => g.items).find(i => i.live) || {};
   const cells = [["Период", `<b id="period">—</b>`]].concat(S.specs.map(p => [p[0], `<b>${p[1]}</b>`]));
   cells.push(["Инструмент", S.showInstruments
