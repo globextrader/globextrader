@@ -16,24 +16,16 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .brand{font:500 13px "IBM Plex Sans",sans-serif;letter-spacing:.3em;text-transform:uppercase}
 .brand::before{content:"";display:inline-block;width:28px;height:1px;background:var(--brass);vertical-align:middle;margin-right:14px}
 .meta{color:var(--mute);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
-.hero{padding:64px 0 52px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:56px;align-items:stretch}
-.statement{font:400 clamp(26px,3.1vw,40px)/1.18 Newsreader,Georgia,serif;letter-spacing:-.01em;margin:22px 0 0}
-.statement .s1{color:var(--ink)}
-.statement .s2 b{font-weight:400;color:var(--ink)}
-.statement .s2{display:block;color:var(--mute);margin-top:4px;font-size:clamp(18px,2.3vw,30px);white-space:nowrap}
-.ap-head{margin-bottom:16px}
-.ap-title{font:400 clamp(24px,2.6vw,32px)/1.1 Newsreader,Georgia,serif;display:flex;align-items:center;gap:16px}
-.ap-title::before{content:"";width:34px;height:1px;background:var(--brass)}
-.duo{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:620px}
-.duo div{background:var(--panel);border:1px solid var(--line);padding:16px 18px 18px}
-.duo b{display:flex;align-items:baseline;font:500 11px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:8px}
-.duo b i{font:400 20px Newsreader,Georgia,serif;font-style:normal;letter-spacing:0;margin-right:12px}
-.duo span{display:block;color:var(--mute);font-size:14px;line-height:1.55}
+.hero{padding:64px 0 52px}
+.hero-head{margin-bottom:30px}
+.hero-cards{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:24px;align-items:stretch}
+.ptype{font:400 clamp(32px,4vw,56px)/1.05 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:22px 0 28px}
+.plan .conds{margin-top:auto}
+.plan .cgrid b{color:var(--mute);line-height:1.55}
 .eyebrow{color:var(--brass);font-size:12px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:18px}
 .name{font:400 clamp(40px,6.2vw,84px)/1 Newsreader,Georgia,serif;margin:0;letter-spacing:-.02em}
-.result{position:relative;background:var(--panel);border:1px solid var(--line);padding:30px 32px 22px;display:flex;flex-direction:column;justify-content:space-between}
-.result::before{content:"";position:absolute;left:-1px;top:-1px;width:64px;height:2px;background:var(--brass)}
-.approach{margin-top:30px}
+.result,.plan{position:relative;background:var(--panel);border:1px solid var(--line);padding:30px 32px 22px;display:flex;flex-direction:column;justify-content:space-between}
+.result::before,.plan::before{content:"";position:absolute;left:-1px;top:-1px;width:64px;height:2px;background:var(--brass)}
 .rgrid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
 .rgrid > div{padding:14px 14px 12px 0}
 .rgrid > div:nth-child(3n+2),.rgrid > div:nth-child(3n){padding-left:16px;border-left:1px solid var(--line)}
@@ -112,12 +104,14 @@ th:first-child{left:0;z-index:2}
 td:first-child{position:sticky;left:0;background:var(--bg)}
 html{-webkit-text-size-adjust:100%}
 @media (max-width:860px){
-  .hero{grid-template-columns:1fr;gap:32px;padding:40px 0 32px}
-  .result{padding:24px 20px 16px}
+  .hero{padding:40px 0 32px}
+  .hero-cards{grid-template-columns:1fr}
+  .result,.plan{padding:24px 20px 16px}
   .groups{grid-template-columns:1fr}
 }
 @media (max-width:640px){
-  .duo{grid-template-columns:1fr}
+  .plan .cgrid{grid-template-columns:1fr}
+  .plan .cgrid > div+div{padding:10px 0 4px;border-left:0;border-top:1px solid var(--line);margin-top:8px}
   .rgrid{grid-template-columns:1fr 1fr}
   .rgrid > div:nth-child(n){padding:12px 12px 10px 0;border-left:0;border-top:1px solid var(--line)}
   .rgrid > div:nth-child(2n){padding-left:14px;border-left:1px solid var(--line)}
@@ -146,20 +140,22 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
 </header>
 
 <section class="hero">
-  <div class="intro">
+  <div class="hero-head">
     <div class="eyebrow" id="eyebrow"></div>
     <h1 class="name" id="name"></h1>
-    <p class="statement" id="statement"></p>
-    <div class="approach">
-      <div class="ap-head"><div class="ap-title" id="apTitle"></div></div>
-      <div class="duo" id="duo"></div>
-    </div>
+  </div>
+  <div class="hero-cards">
+  <div class="plan">
+    <div class="rl"><span id="typeLabel"></span></div>
+    <div class="ptype" id="ptype"></div>
+    <div class="conds" id="approach"></div>
   </div>
   <div class="result">
     <div class="rl"><span>Результат</span><i class="tag">ES</i></div>
     <div class="numrow"><div class="num" id="total">—</div><div class="tk" id="tk"></div></div>
     <div class="rgrid" id="cap"></div>
     <div class="conds" id="conds"></div>
+  </div>
   </div>
 </section>
 
@@ -209,7 +205,7 @@ const CONFIG = {
     name: "Scalping Globextrader",
     approachTitle: "Гибридный подход",
     ledeMain: "Внутридневной скальпинг",
-    ledeSub: ["Фьючерс на ES", "(E-mini S&P 500)"],
+    typeLabel: "Тип торговли",
     approach: [
       ["Системные правила", "Торговый план, лимиты риска и параметры сделки определены заранее."],
       ["Дискреционное исполнение", "Решение о входе в сделку принимает трейдер с учётом текущей рыночной ситуации."]
@@ -638,14 +634,14 @@ async function load() {
 function renderIntro() {
   const S = CONFIG.strategy;
   document.title = S.name + " — результаты";
-  $("eyebrow").textContent = S.eyebrow; $("name").textContent = S.name; $("apTitle").textContent = S.approachTitle;
-  $("statement").innerHTML = `<span class="s1">${S.ledeMain}.</span> <span class="s2"><b>${S.ledeSub[0]}</b> ${S.ledeSub[1]}.</span>`;
-  $("duo").innerHTML = S.approach.map((a, k) => `<div><b><i>0${k + 1}</i>${a[0]}</b><span>${a[1]}</span></div>`).join("");
+  $("eyebrow").textContent = S.eyebrow; $("name").textContent = S.name;
+  $("typeLabel").textContent = S.typeLabel; $("ptype").textContent = S.ledeMain;
+  $("approach").innerHTML = `<div class="cl">${S.approachTitle}</div><div class="cgrid">${S.approach.map(a => `<div><span>${a[0]}</span><b>${a[1]}</b></div>`).join("")}</div>`;
   const live = S.groups.flatMap(g => g.items).find(i => i.live) || {};
   const cells = [["Период", `<b id="period">—</b>`]].concat(S.specs.map(p => [p[0], `<b>${p[1]}</b>`]));
   cells.push(["Инструмент", S.showInstruments
     ? `<details class="instbox" id="instbox"><summary><b id="curInst"></b><i class="chev"></i></summary><div class="groups" id="insts"></div></details>`
-    : `<b>${live.sym || ""}${live.name ? ` · ${live.name}` : ""}</b>`]);
+    : `<b>Фьючерс на ${live.sym || ""}${live.name ? ` (${live.name})` : ""}</b>`]);
   $("cap").innerHTML = cells.map(c => `<div><span>${c[0]}</span>${c[1]}</div>`).join("");
   $("conds").innerHTML = `<div class="cl">Условия сделки</div><div class="cgrid">${S.terms.map(t => `<div><span>${t[0]}</span><b>${t[1]}</b></div>`).join("")}</div>`;
   if (!S.showInstruments) return;
