@@ -34,22 +34,20 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .csign{font-size:.46em;vertical-align:.78em;margin-right:.1em;opacity:.8}
 .numrow{display:flex;align-items:flex-end;flex-wrap:wrap;gap:6px 30px;margin:20px 0 26px}
 #total{font:400 clamp(48px,6.6vw,88px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:0}
-.conds{border-top:1px solid var(--line)}
-.cl{padding:12px 0 4px;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--brass)}
-.cgrid{display:grid;grid-template-columns:1fr 1fr}
-.cgrid > div{padding:6px 14px 4px 0}
-.cgrid > div+div{padding-left:16px;border-left:1px solid var(--line)}
-.cgrid span{display:block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-bottom:5px}
 .nb{white-space:nowrap}
-.cgrid.one{grid-template-columns:1fr}
-.cgrid .ttype{font:400 clamp(24px,3vw,34px)/1.1 Newsreader,Georgia,serif;letter-spacing:-.01em;padding:4px 0 6px}
-.cgrid.stack b{color:var(--mute);line-height:1.55}
+.brow{display:grid;grid-template-columns:repeat(6,1fr);border-top:1px solid var(--line)}
+.bg{padding:14px 12px 12px 16px;border-left:1px solid var(--line)}
+.bg:first-child{padding-left:0;border-left:0}
+.bg.g1{grid-column:span 1}.bg.g2{grid-column:span 2}.bg.g3{grid-column:span 3}
+.bt{display:block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-bottom:5px}
+.bi{display:grid;grid-template-columns:repeat(var(--n,1),1fr);gap:8px 18px}
+.bi em{display:block;font-style:normal;color:var(--mute);font-size:12px;margin-bottom:2px}
+.bi b{font-weight:400;font-size:14px;line-height:1.5;color:var(--ink)}
 @media (min-width:901px){
   .rgrid{grid-template-columns:repeat(6,1fr)}
   .rgrid > div:nth-child(n){padding:14px 12px 12px 16px;border-left:1px solid var(--line);border-top:0}
   .rgrid > div:nth-child(1){padding-left:0;border-left:0}
 }
-.cgrid b{font-weight:400;font-size:14px;line-height:1.4;color:var(--ink)}
 .tip .tkp{color:var(--mute);margin-left:4px}
 .tk{padding-bottom:8px;border-left:1px solid var(--line);padding-left:26px}
 .tk:empty{display:none}
@@ -107,6 +105,12 @@ th{white-space:nowrap;position:sticky;top:0;background:var(--panel);color:var(--
 th:first-child{left:0;z-index:2}
 td:first-child{position:sticky;left:0;background:var(--bg)}
 html{-webkit-text-size-adjust:100%}
+@media (max-width:900px){
+  .brow{grid-template-columns:1fr}
+  .bg.g1,.bg.g2,.bg.g3{grid-column:1/-1}
+  .bg:nth-child(n){padding:14px 0 12px;border-left:0}
+  .bg + .bg{border-top:1px solid var(--line)}
+}
 @media (max-width:860px){
   .hero{padding:40px 0 32px}
   .result{padding:24px 20px 16px}
@@ -149,9 +153,7 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
     <div class="rl"><span>Результат</span><i class="tag">ES</i></div>
     <div class="numrow"><div class="num" id="total">—</div><div class="tk" id="tk"></div></div>
     <div class="rgrid" id="cap"></div>
-    <div class="conds" id="conds"></div>
-    <div class="conds" id="ttype"></div>
-    <div class="conds" id="approach"></div>
+    <div class="brow" id="brow"></div>
   </div>
 </section>
 
@@ -631,15 +633,14 @@ function renderIntro() {
   const S = CONFIG.strategy;
   document.title = S.name + " — результаты";
   $("eyebrow").textContent = S.eyebrow; $("name").textContent = S.name;
-  $("ttype").innerHTML = `<div class="cl">${S.typeLabel}</div><div class="cgrid one"><div><b class="ttype">${S.ledeMain}</b></div></div>`;
-  $("approach").innerHTML = `<div class="cl">${S.approachTitle}</div><div class="cgrid stack2">${S.approach.map(a => `<div><span>${a[0]}</span><b>${a[1]}</b></div>`).join("")}</div>`.replace("stack2", "stack");
   const live = S.groups.flatMap(g => g.items).find(i => i.live) || {};
   const cells = [["Период", `<b id="period">—</b>`]].concat(S.specs.map(p => [p[0], `<b>${p[1]}</b>`]));
   cells.push(["Инструмент", S.showInstruments
     ? `<details class="instbox" id="instbox"><summary><b id="curInst"></b><i class="chev"></i></summary><div class="groups" id="insts"></div></details>`
     : `<b>Фьючерс на ${live.sym || ""}${live.name ? ` (${live.name})` : ""}</b>`]);
   $("cap").innerHTML = cells.map(c => `<div><span>${c[0]}</span>${c[1]}</div>`).join("");
-  $("conds").innerHTML = `<div class="cl">Условия сделки</div><div class="cgrid">${S.terms.map(t => `<div><span>${t[0]}</span><b>${t[1]}</b></div>`).join("")}</div>`;
+  const grp = (title, cls, n, items, extra = "") => `<div class="bg ${cls}"><span class="bt">${title}</span><div class="bi ${extra}" style="--n:${n}">${items.map(i => `<div>${i[0] ? `<em>${i[0]}</em>` : ""}<b>${i[1]}</b></div>`).join("")}</div></div>`;
+  $("brow").innerHTML = grp("Условия сделки", "g2", 2, S.terms) + grp(S.typeLabel, "g1", 1, [["", S.ledeMain]]) + grp(S.approachTitle, "g3", 2, S.approach, "stackm");
   if (!S.showInstruments) return;
   $("curInst").textContent = (S.groups.flatMap(g => g.items).find(i => i.live) || {}).sym || "";
   const row = (k, v) => `<div><dt>${k}</dt><dd>${v || "—"}</dd></div>`;
