@@ -107,7 +107,8 @@ table{border-collapse:collapse;width:100%}
 th,td{padding:8px 16px;text-align:right;border-bottom:1px solid var(--line)}
 th:first-child,td:first-child{text-align:left}
 th{white-space:nowrap;position:sticky;top:0;background:var(--panel);color:var(--mute);font-weight:400;font-size:13px}
-.status{color:var(--mute);font-size:13px;margin-top:12px}
+.status{color:var(--mute);font-size:12px;font-style:italic;margin-top:10px}
+#debug{font-style:normal;font-size:13px}
 th:first-child{left:0;z-index:2}
 td:first-child{position:sticky;left:0;background:var(--bg)}
 html{-webkit-text-size-adjust:100%}
@@ -166,6 +167,7 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
     </div>
   </div>
   <div class="spec"><div class="rgrid" id="cap"></div></div>
+  <div class="status" id="status"></div>
 </section>
 
 
@@ -184,7 +186,6 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
   <div class="tip num" id="tip"></div>
   <div class="tip num" id="tip2"></div>
 </section>
-<div class="status" id="status"></div>
 <pre class="status" id="debug" style="white-space:pre-wrap;display:none"></pre>
 
 <h2 class="dh">Детальная таблица</h2>
