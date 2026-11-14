@@ -16,7 +16,8 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .brand{font:500 13px "IBM Plex Sans",sans-serif;letter-spacing:.3em;text-transform:uppercase}
 .brand::before{content:"";display:inline-block;width:28px;height:1px;background:var(--brass);vertical-align:middle;margin-right:14px}
 .meta{color:var(--mute);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
-.hero{padding:64px 0 52px}
+.hero{padding:44px 0 14px}
+.hero + h2{margin-top:26px}
 .hero-head{margin-bottom:30px}
 .eyebrow{color:var(--brass);font-size:12px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:18px}
 .name{font:400 clamp(40px,6.2vw,84px)/1 Newsreader,Georgia,serif;margin:0;letter-spacing:-.02em}
@@ -119,7 +120,7 @@ html{-webkit-text-size-adjust:100%}
 @media (max-width:900px){
 }
 @media (max-width:860px){
-  .hero{padding:40px 0 32px}
+  .hero{padding:32px 0 10px}
   .result{padding:24px 20px 16px}
   .groups{grid-template-columns:1fr}
 }
