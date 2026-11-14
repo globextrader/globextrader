@@ -30,7 +30,9 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 #total{font:400 clamp(44px,5.2vw,80px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:0}
 .nb{white-space:nowrap}
 .spec{margin-top:20px}
-.rgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.rgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.rgrid.two{margin-bottom:20px}
+#cap{grid-template-columns:repeat(6,1fr)}
 .rgrid > div{background:var(--panel);padding:16px 18px 18px}
 .rgrid > div > span{display:block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:9px}
 .rgrid > div > b{display:block;font-weight:400;font-size:15px;line-height:1.5;color:var(--ink)}
@@ -109,12 +111,12 @@ th:first-child{left:0;z-index:2}
 td:first-child{position:sticky;left:0;background:var(--bg)}
 html{-webkit-text-size-adjust:100%}
 @media (max-width:1100px){
+  #cap{grid-template-columns:repeat(3,1fr)}
   .rtop{grid-template-columns:1fr}
   .rleft{padding-right:0}
   .isw{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:24px;margin-top:24px}
 }
 @media (max-width:900px){
-  .rgrid{grid-template-columns:repeat(2,1fr)}
 }
 @media (max-width:860px){
   .hero{padding:40px 0 32px}
@@ -122,6 +124,8 @@ html{-webkit-text-size-adjust:100%}
   .groups{grid-template-columns:1fr}
 }
 @media (max-width:640px){
+  #cap{grid-template-columns:repeat(2,1fr)}
+  .rgrid.two{grid-template-columns:1fr}
   body{padding:0 14px 36px}
   header{padding:18px 0}
   .brand span{display:block;margin:2px 0 0}
@@ -150,6 +154,7 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
     <div class="eyebrow" id="eyebrow"></div>
     <h1 class="name" id="name"></h1>
   </div>
+  <div class="rgrid two" id="fixed"></div>
   <div class="result">
     <div class="rtop">
       <div class="rleft">
@@ -637,9 +642,9 @@ function renderIntro() {
   $("eyebrow").textContent = S.eyebrow; $("name").textContent = S.name;
   const live = S.groups.flatMap(g => g.items).find(i => i.live) || {};
   $("rinst").textContent = live.name ? `(Фьючерс на ${live.name})` : "";   // что за инструмент — в строке заголовка результата
-  const cells = [[S.typeLabel, `<b>${S.ledeMain}</b>`], ["Период", `<b id="period">—</b>`]].concat(S.specs.map(p => [p[0], `<b>${p[1]}</b>`]));
+  $("fixed").innerHTML = [[S.typeLabel, S.ledeMain], [S.executionLabel, S.execution]].map(c => `<div><span>${c[0]}</span><b>${c[1]}</b></div>`).join("");   // статичные описания стратегии
+  const cells = [["Период", `<b id="period">—</b>`]].concat(S.specs.map(p => [p[0], `<b>${p[1]}</b>`]));
   cells.push(["Условия сделки", S.terms.map(t => `<p class="sp"><i>${t[0]}</i><b>${t[1]}</b></p>`).join("")]);
-  cells.push([S.executionLabel, `<b>${S.execution}</b>`]);
   if (S.showInstruments) cells.push(["Инструмент", `<details class="instbox" id="instbox"><summary><b id="curInst"></b><i class="chev"></i></summary><div class="groups" id="insts"></div></details>`]);
   $("cap").innerHTML = cells.map(c => `<div><span>${c[0]}</span>${c[1]}</div>`).join("");
   // переключатель инструментов: ссылка работает, как только у инструмента появляется href
