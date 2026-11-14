@@ -27,21 +27,22 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .tag{font-style:normal;color:var(--ink);border:1px solid var(--brass);padding:2px 9px;letter-spacing:.14em}
 .csign{font-size:.46em;vertical-align:.78em;margin-right:.1em;opacity:.8}
 .numrow{display:flex;align-items:flex-end;flex-wrap:wrap;gap:6px 30px;margin:20px 0 26px}
-#total{font:400 clamp(48px,6.6vw,88px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:0}
+#total{font:400 clamp(44px,5.2vw,80px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:0}
 .nb{white-space:nowrap}
 .spec{position:relative;background:var(--panel);border:1px solid var(--line);padding:22px 28px;margin-top:20px}
 .spec::before{content:"";position:absolute;left:-1px;top:-1px;width:64px;height:2px;background:var(--brass)}
 .rgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
-.rgrid > div{background:#101c27;padding:16px 18px 18px}
+.rgrid > div{background:var(--panel);padding:16px 18px 18px}
 .rgrid > div > span{display:block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:9px}
 .rgrid > div > b{display:block;font-weight:400;font-size:15px;line-height:1.5;color:var(--ink)}
-.sp{margin:0 0 9px}
+.sp{display:flex;align-items:baseline;gap:10px;margin:0 0 5px}
 .sp:last-child{margin:0}
-.sp i{display:block;font-style:normal;color:var(--mute);font-size:12px;margin-bottom:1px}
-.sp b{font-weight:400;font-size:15px;color:var(--ink)}
+.sp i{font-style:normal;color:var(--brass);font-size:12.5px;letter-spacing:.08em;min-width:22px}
+.sp b{font-weight:400;font-size:14px;line-height:1.5;color:var(--ink)}
 .rinst{font-style:normal;text-transform:none;letter-spacing:0;font-size:14px;color:var(--mute)}
-.rtop{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:stretch}
-.isw{border-left:1px solid var(--line);padding-left:44px;margin-left:44px}
+.rtop{display:grid;grid-template-columns:1fr 1fr;align-items:stretch}
+.rleft{padding-right:44px}
+.isw{border-left:1px solid var(--line);padding-left:44px}
 .ig{display:flex;align-items:center;gap:14px;margin-top:16px}
 .gl{flex:none;width:122px;white-space:nowrap;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -109,7 +110,8 @@ td:first-child{position:sticky;left:0;background:var(--bg)}
 html{-webkit-text-size-adjust:100%}
 @media (max-width:1100px){
   .rtop{grid-template-columns:1fr}
-  .isw{border-left:0;padding-left:0;margin-left:0;border-top:1px solid var(--line);padding-top:24px;margin-top:24px}
+  .rleft{padding-right:0}
+  .isw{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:24px;margin-top:24px}
 }
 @media (max-width:900px){
   .rgrid{grid-template-columns:repeat(2,1fr)}
@@ -210,7 +212,7 @@ const CONFIG = {
     executionLabel: "Подход к исполнению",
     execution: "Дискреционное исполнение по системным правилам",
     showInstruments: false,   // true — вернуть выпадающий список «Инструмент» с фьючерсами и опционами
-    terms: [["Тейк-профит", "10 тиков · $125"], ["Стоп-лосс", "20 тиков · $250"]],
+    terms: [["TP", "10 тиков ($125)"], ["SL", "20 тиков ($250)"]],
     specs: [["Торговое окно", "09:30–11:00 ET, <span class=\"nb\">Нью-Йорк</span>"], ["Объём", "1 контракт, без реинвестирования"], ["Стоимость тика", "$12,50"], ["Комиссия", "$4 за сделку, учтена"]],
     // href: ссылка на страницу со статистикой инструмента (когда появится); live: true — результаты уже на этой странице
     groups: [
