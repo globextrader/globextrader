@@ -29,15 +29,15 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .numrow{display:flex;align-items:flex-end;flex-wrap:wrap;gap:6px 30px;margin:20px 0 26px}
 #total{font:400 clamp(44px,5.2vw,80px)/1 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:0}
 .nb{white-space:nowrap}
-.spec{position:relative;background:var(--panel);border:1px solid var(--line);padding:22px 28px;margin-top:20px}
-.spec::before{content:"";position:absolute;left:-1px;top:-1px;width:64px;height:2px;background:var(--brass)}
+.spec{margin-top:20px}
 .rgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
 .rgrid > div{background:var(--panel);padding:16px 18px 18px}
 .rgrid > div > span{display:block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:9px}
 .rgrid > div > b{display:block;font-weight:400;font-size:15px;line-height:1.5;color:var(--ink)}
-.sp{display:flex;align-items:baseline;gap:10px;margin:0 0 5px}
+.sp{display:flex;align-items:baseline;gap:6px;margin:0 0 5px}
 .sp:last-child{margin:0}
-.sp i{font-style:normal;color:var(--brass);font-size:12.5px;letter-spacing:.08em;min-width:22px}
+.sp i{font-style:normal;color:var(--brass);font-size:12.5px;letter-spacing:.08em}
+.sp i::after{content:" –";color:var(--mute)}
 .sp b{font-weight:400;font-size:14px;line-height:1.5;color:var(--ink)}
 .rinst{font-style:normal;text-transform:none;letter-spacing:0;font-size:14px;color:var(--mute)}
 .rtop{display:grid;grid-template-columns:1fr 1fr;align-items:stretch}
@@ -122,7 +122,6 @@ html{-webkit-text-size-adjust:100%}
   .groups{grid-template-columns:1fr}
 }
 @media (max-width:640px){
-  .spec{padding:14px 12px}
   body{padding:0 14px 36px}
   header{padding:18px 0}
   .brand span{display:block;margin:2px 0 0}
