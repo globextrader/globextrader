@@ -39,7 +39,7 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
 .rgrid > div > b{display:block;font-weight:400;font-size:15px;line-height:1.5;color:var(--ink)}
 .sp{display:flex;align-items:baseline;gap:6px;margin:0 0 5px}
 .sp:last-child{margin:0}
-.sp i{font-style:normal;color:var(--brass);font-size:12.5px;letter-spacing:.08em}
+.sp i{font-style:normal;color:var(--ink);font-size:12.5px;letter-spacing:.08em}
 .sp i::after{content:" –";color:var(--mute)}
 .sp b{font-weight:400;font-size:14px;line-height:1.5;color:var(--ink)}
 .rinst{font-style:normal;text-transform:none;letter-spacing:0;font-size:14px;color:var(--mute)}
@@ -109,6 +109,9 @@ th:first-child,td:first-child{text-align:left}
 th{white-space:nowrap;position:sticky;top:0;background:var(--panel);color:var(--mute);font-weight:400;font-size:13px}
 .status{color:var(--mute);font-size:12px;font-style:italic;margin-top:10px}
 #debug{font-style:normal;font-size:13px}
+.rleft .status{margin-top:-14px}
+#err{font-style:normal;font-size:13px}
+#err:empty{display:none}
 th:first-child{left:0;z-index:2}
 td:first-child{position:sticky;left:0;background:var(--bg)}
 html{-webkit-text-size-adjust:100%}
@@ -162,12 +165,13 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
       <div class="rleft">
         <div class="rl"><span>Результат</span><i class="tag">ES</i><em class="rinst" id="rinst"></em></div>
         <div class="numrow"><div class="num" id="total">—</div><div class="tk" id="tk"></div></div>
+        <div class="status" id="status"></div>
       </div>
       <div class="isw" id="isw"></div>
     </div>
   </div>
   <div class="spec"><div class="rgrid" id="cap"></div></div>
-  <div class="status" id="status"></div>
+  <div class="status" id="err"></div>
 </section>
 
 
@@ -177,7 +181,7 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:v
 <div class="subhead dh"><span>По периодам</span><div class="tabs" id="sTabs"></div><em class="snote" id="snote"></em></div>
 <dl class="grid" id="dstats"></dl>
 
-<h2 class="dh">Детальная статистика</h2>
+<h2 class="dh">Детальная инфографика</h2>
 <section class="chartwrap" aria-label="График результатов">
   <div class="tabs" id="tabs"></div>
   <div class="tabs" id="mtabs"></div>
@@ -625,14 +629,14 @@ async function load() {
   };
   if (days.length < 2) {
     if (CONFIG.sheetCsvUrl) {   // реальный сайт: демо-цифры не показываем никогда
-      $("status").textContent = note || ("Не удалось прочитать данные из таблицы" + (dbg && dbg.problem ? ": " + dbg.problem : "") + ". Откройте страницу с ?debug для диагностики.");
+      $("status").textContent = ""; $("err").textContent = note || ("Не удалось прочитать данные из таблицы" + (dbg && dbg.problem ? ": " + dbg.problem : "") + ". Откройте страницу с ?debug для диагностики.");
       document.querySelectorAll(".result, .spec, .chartwrap, .dh, #stats, #dstats, #tblTabs, .tablewrap").forEach(e => e.style.display = "none");
       showDebug(); setTimeout(load, 10 * 60000); return;
     }
     days = demoData(); note = note || "Демо-данные.";
   }
   document.querySelectorAll(".result, .spec, .chartwrap, .dh, #stats, #dstats, #tblTabs, .tablewrap").forEach(e => e.style.display = "");
-  $("status").textContent = note || "(данные обновляются раз в сутки)";
+  $("err").textContent = ""; $("status").textContent = note || "(данные обновляются раз в сутки)";
   showDebug();
   render(); tables();
   setTimeout(load, Math.min(next - Date.now() + 5000, 2 ** 31 - 1));
